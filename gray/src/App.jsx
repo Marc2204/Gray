@@ -18,12 +18,13 @@ const App = () => {
     <Router>
       <Routes>
        
-        <Route path="/chatbot" element={<Chatbot />} />
+        
         <Route
           path="*"
           element={
             <Dashboard>
               <Routes>
+                <Route path="/chatbot" element={<Chatbot />} />
                 <Route path="/anxiety" element={<Anxiety />} />
                 <Route path="/anxiety-test" element={<AnxietyTest />} />
                 <Route path="/depression" element={<Depression />} />

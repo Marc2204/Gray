@@ -1,43 +1,15 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
 import "../testDesign/EatingTest.css";
+import Chatbot from "../pages/Chatbot";
 
 const questions = [
-  {
-    id: 1,
-    text: "Feeling nervous, anxious, or on edge?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"],
-  },
-  {
-    id: 2,
-    text: "Not being able to stop or control worrying?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"],
-  },
-  {
-    id: 3,
-    text: "Worrying too much about different things?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"],
-  },
-  {
-    id: 4,
-    text: "Trouble relaxing?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"],
-  },
-  {
-    id: 5,
-    text: "Being so restless that it is hard to sit still?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"],
-  },
-  {
-    id: 6,
-    text: "Becoming easily annoyed or irritable?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"],
-  },
-  {
-    id: 7,
-    text: "Feeling afraid as if something awful might happen?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"],
-  },
+  { id: 1, text: "Feeling nervous, anxious, or on edge?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 2, text: "Not being able to stop or control worrying?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 3, text: "Worrying too much about different things?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 4, text: "Trouble relaxing?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 5, text: "Being so restless that it is hard to sit still?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 6, text: "Becoming easily annoyed or irritable?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 7, text: "Feeling afraid as if something awful might happen?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
 ];
 
 const optionValues = {
@@ -51,36 +23,79 @@ const logisticRegression = (score) => {
   if (score >= 15) {
     return {
       result: "Severe Anxiety – Consider professional help.",
-      description:
-        "Your score suggests that you may be experiencing severe anxiety. It is recommended that you seek professional help, such as a therapist or counselor. This level of anxiety can significantly impact your daily life, and treatment options such as therapy or medication may be beneficial.",
+      description: "Your score suggests that you may be experiencing severe anxiety. It is recommended that you seek professional help, such as a therapist or counselor. This level of anxiety can significantly impact your daily life, and treatment options such as therapy or medication may be beneficial.",
     };
   } else if (score >= 10) {
     return {
       result: "Moderate Anxiety – Keep monitoring.",
-      description:
-        "Your score suggests moderate anxiety. You may be experiencing stress or anxiety that is affecting your ability to relax or concentrate. It’s important to continue monitoring your mental health and consider self-care strategies or talking to a professional.",
+      description: "Your score suggests moderate anxiety. You may be experiencing stress or anxiety that is affecting your ability to relax or concentrate. It’s important to continue monitoring your mental health and consider self-care strategies or talking to a professional.",
     };
   } else if (score >= 5) {
     return {
       result: "Mild Anxiety – Be mindful of your well-being.",
-      description:
-        "Your score suggests mild anxiety. This level may be temporary and linked to stress or life events. Keep an eye on your emotional well-being and try practices like mindfulness, exercise, or healthy routines.",
+      description: "Your score suggests mild anxiety. This level may be temporary and linked to stress or life events. Keep an eye on your emotional well-being and try practices like mindfulness, exercise, or healthy routines.",
     };
   } else {
     return {
       result: "Minimal Anxiety – Keep taking care of yourself!",
-      description:
-        "Your score indicates minimal anxiety, which is great. While stress is normal, your levels seem manageable. Continue your healthy habits and watch for any changes.",
+      description: "Your score indicates minimal anxiety, which is great. While stress is normal, your levels seem manageable. Continue your healthy habits and watch for any changes.",
     };
   }
 };
 
 const AnxietyTest = () => {
-  const navigate = useNavigate();
   const [answers, setAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState(null);
   const [score, setScore] = useState(0);
+  const [isChatbotVisible, setIsChatbotVisible] = useState(false);
+
+  const chatbotButtonRef = useRef(null);
+
+  const toggleChatbot = () => {
+    setIsChatbotVisible((prev) => !prev);
+  };
+
+  useEffect(() => {
+    const button = chatbotButtonRef.current;
+    if (!button) return;
+
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const onMouseDown = (e) => {
+      isDragging = true;
+      offsetX = e.clientX - button.getBoundingClientRect().left;
+      offsetY = e.clientY - button.getBoundingClientRect().top;
+      button.style.transition = "none";
+    };
+
+    const onMouseMove = (e) => {
+      if (isDragging) {
+        button.style.left = `${e.clientX - offsetX}px`;
+        button.style.top = `${e.clientY - offsetY}px`;
+        button.style.bottom = "auto";
+        button.style.right = "auto";
+        button.style.position = "fixed";
+      }
+    };
+
+    const onMouseUp = () => {
+      isDragging = false;
+      button.style.transition = "";
+    };
+
+    button.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+
+    return () => {
+      button.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+  }, []);
 
   const handleOptionSelect = (questionIndex, selectedOption) => {
     setAnswers((prev) => ({
@@ -103,6 +118,10 @@ const AnxietyTest = () => {
     setScore(totalScore);
     setResult(anxietyResult);
     setShowResult(true);
+
+    if (anxietyResult.result.startsWith("Severe Anxiety")) {
+      setIsChatbotVisible(true);
+    }
   };
 
   return (
@@ -127,45 +146,14 @@ const AnxietyTest = () => {
               </div>
             </div>
           ))}
-
-         
-          <button onClick={handleSubmit} className="submit-button">
-            SUBMIT
-          </button>
-
-
-          <div className="test-source">
-            <h2>Source:</h2>
-            <p>
-            Primary Care Evaluation of Mental Disorders Patient Health Questionnaire (PRIME-MD-PHQ). The PHQ was
-developed by Drs. Robert L. Spitzer, Janet B.W. Williams, Kurt Kroenke, and colleagues. For research information, contact Dr.
-Spitzer at ris8@columbia.edu. PRIME-MD® is a trademark of Pfizer Inc. Copyright© 1999 Pfizer Inc. All rights reserved.
-Reproduced with permission
-
-            </p>
-
-            <a
-              href="https://adaa.org/sites/default/files/GAD-7_Anxiety-updated_0.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              https://adaa.org/sites/default/files/GAD-7_Anxiety-updated_0.pdf
-            </a>
-
-            <p><strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider. Mental Health Assessment and the researchers disclaim any liability, loss, or risk incurred as a consequence, directly or indirectly, from the use and application of these screens.</p>
-          </div>
-
+          <button onClick={handleSubmit} className="submit-button">SUBMIT</button>
         </div>
-
       ) : (
         <div className="result-section">
           <h2>Your Result:</h2>
           <p><strong>Score:</strong> {score} / {questions.length * 3}</p>
           <p><strong>{result.result}</strong></p>
           <p>{result.description}</p>
-
-        
-
           <h3>Your Answers:</h3>
           <ul>
             {questions.map((question, index) => (
@@ -177,10 +165,25 @@ Reproduced with permission
               </li>
             ))}
           </ul>
-      
-          <p style={{ marginTop: "3rem", textAlign: "justify" }}>
-  <strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider. Mental Health Assessment and the researchers disclaim any liability, loss, or risk incurred as a consequence, directly or indirectly, from the use and application of these screens.
-</p>
+          <p style={{ marginTop: "2rem" }}>
+            <strong>Note:</strong> Online screening tools are not diagnostic instruments. Share your results with a physician or healthcare provider.
+          </p>
+        </div>
+      )}
+
+      {showResult && (
+        <button
+          onClick={toggleChatbot}
+          ref={chatbotButtonRef}
+          className="footer-button"
+        >
+          {isChatbotVisible ? "Hide Chatbot" : "Open Chatbot"}
+        </button>
+      )}
+
+      {isChatbotVisible && (
+        <div className="chatbot-wrapper">
+          <Chatbot severeAlert={result?.result.startsWith("Severe Anxiety")} />
         </div>
       )}
     </div>
