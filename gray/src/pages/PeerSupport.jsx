@@ -33,6 +33,7 @@ const PeerSupport = ({ initialSpace = 'Community Support' }) => {
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [email, setEmail] = useState('');
+    const [csvFile, setCsvFile] = useState(null); // 📌 CSV file state
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, user => {
@@ -92,6 +93,28 @@ const PeerSupport = ({ initialSpace = 'Community Support' }) => {
         } catch (error) {
             console.error('Failed to analyze post:', error);
             alert('Error analyzing post.');
+        }
+    };
+
+    const handleCSVUpload = async () => {
+        if (!csvFile) {
+            alert('Please select a CSV file.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', csvFile);
+
+        try {
+            const response = await fetch('http://localhost:5000/train', {
+                method: 'POST',
+                body: formData,
+            });
+            const result = await response.json();
+            alert(result.message || result.error);
+        } catch (err) {
+            console.error('CSV upload failed:', err);
+            alert('CSV upload failed.');
         }
     };
 
@@ -160,7 +183,17 @@ const PeerSupport = ({ initialSpace = 'Community Support' }) => {
                     <h2>{activeSpace}</h2>
                     <p className="anonymous-note">All posts are anonymous 💬</p>
                 </div>
+
                 {renderMainContent()}
+
+                {/* Admin CSV Upload Section */}
+                {isAdmin && (
+                    <div className="csv-upload">
+                        <h4>📊 Train Emotion Classifier</h4>
+                        <input type="file" accept=".csv" onChange={(e) => setCsvFile(e.target.files[0])} />
+                        <button onClick={handleCSVUpload}>Upload & Train</button>
+                    </div>
+                )}
             </main>
             <aside className="right-sidebar">
                 <h4>Related Topics</h4>
