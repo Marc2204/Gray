@@ -1,101 +1,209 @@
 text,label
-"I am very happy",happiness
-"I'm feeling really sad",sadness
-"This is exciting",happiness
-"I feel awful",sadness
-"I am scared",fear
-"I'm angry",anger
-"I feel like I am not doing well in everything", sadness
-"I feel overwhelmed and can't sleep at night.", sadness
-"I'm doing fine and enjoying my classes.", happiness
-"Sometimes I think about giving up.",  sadness
-"I am so grateful for my family.", happiness
-"Life has been good lately.", happiness
-"I want to disappear, nothing makes sense.", sadness
-"Just had a fun weekend with friends!, happiness 
-"I am so anxious about the future.", fear
-"I am really frustrated with my job.", anger
-"I feel like I am in a dark place.", sadness
-"I am excited about the new project at work.", happiness
-"I can't stop thinking about my mistakes.", sadness
-"I am thrilled about the upcoming vacation!", happiness
-"I feel like I am losing control.", fear
-"I am so proud of my achievements.", happiness
-"I am really nervous about the exam.", fear
-"I am feeling hopeful about the future.", happiness
-"I am so angry at myself for not studying enough.", anger
-"I feel like I am in a rut.", sadness
-"I am so relieved that the project is finally done.", happiness
-"I am feeling very lonely these days.", sadness
-"I am so excited to see my friends again!", happiness
-"I am really worried about my health.", fear
-"I am feeling very content with my life.", happiness
-"I am so frustrated with the traffic today.", anger
-"I am feeling very optimistic about my career.", happiness
-"I am so scared about the upcoming surgery.", fear
-"I am feeling very nostalgic about my childhood.", happiness
-"I am so happy to have supportive friends.", happiness
-"I am feeling very stressed about my workload.", sadness
-"I am so excited about the concert next week!", happiness
-"I am feeling very anxious about the presentation.", fear
-"I am so grateful for the little things in life.", happiness
-"I am feeling very down today.", sadness
-"I am so excited about the new book release!", happiness
-"I am feeling very frustrated with my progress.", sadness
-"I am so happy to be alive.", happiness
-"I am feeling very anxious about the future.", fear
-"I am so proud of my team for completing the project.", happiness
-"I am feeling very overwhelmed with everything going on.", sadness
-"I am so excited to start my new job!", happiness
-"I am feeling very sad about the recent news.", sadness
-"I am so happy to have a supportive partner.", happiness
-"I am feeling very anxious about the upcoming interview.", fear
-"I am so excited to travel again!", happiness
-"I am feeling very frustrated with my current situation.", sadness
-"I am so happy to have a loving family.", happiness
-"I am feeling very anxious about the changes in my life.", fear
-"I am so excited to learn new things!", happiness
-"I am feeling very sad about the loss of a friend.", sadness
-"I am so happy to have a job that I love.", happiness
-"I am feeling very anxious about the future of my career.", fear
-"I am so excited to celebrate my birthday!", happiness
-"I am feeling very frustrated with my finances.", sadness
-"I am so happy to have a pet that brings me joy.", happiness
-"I am feeling very anxious about the upcoming move.", fear
-"I am so excited to see my family again!", happiness
-"I am feeling very sad about the end of a relationship.", sadness
-"I am so happy to have a hobby that I enjoy.", happiness
-"I am feeling very anxious about the current situation in the world.", fear
-"I am so excited to meet new people!", happiness
-"I am feeling very frustrated with my lack of progress.", sadness
-"I am so happy to have a supportive community.", happiness
-"I am feeling very anxious about the future of my health.", fear
-"I am so excited to start a new chapter in my life!", happiness
-"I am feeling very sad about the recent changes in my life.", sadness
-"I am so happy to have a mentor who believes in me.", happiness
-"I am feeling very anxious about the upcoming changes at work.", fear
-"I feel like I am making a difference in the world.", happiness
-"I am feeling very frustrated with the current political situation.", sadness
-"I am so happy to have a creative outlet.", happiness
-"I am feeling very anxious about the future of the planet.", fear
-"I feel like I am finally finding my purpose.", happiness
-"I am feeling very sad about the current state of the world.", sadness
-"I am so happy to have a strong support system.", happiness
-"I am feeling very anxious about the future of my relationships.", fear
-"I am so excited to explore new places!", happiness
-"I am feeling very frustrated with my lack of motivation.", sadness
-"I am so happy to have a job that challenges me.", happiness
-"I am feeling very anxious about the future of my finances.", fear
-"I am so excited to create new memories!", happiness
-"I am feeling very sad about the recent loss of a loved one.", sadness
-"I am so happy to have a positive mindset.", happiness
-"I am feeling very anxious about the upcoming changes in my life.", fear
-"I am so excited to achieve my goals!", happiness
-"I am feeling very frustrated with my current situation.", sadness
-"I am so happy to have a loving partner who supports me.", happiness
-"I am feeling very anxious about the future of my job.", fear
-"I am so excited to make new friends!", happiness
-"I am feeling very sad about the recent breakup.", sadness
-"I am so happy to have a fulfilling career.", happiness
-"I am feeling very anxious about the future of my health.", fear
-"I am so excited to learn new skills!", happiness
+<<<<<<< HEAD
+"I am going through some things with my feelings and myself. I barely sleep and I do nothing but think about how I am worthless and how I should not be here.",sadness
+"I've never tried or contemplated suicide. I've always wanted to fix my issues, but I never get around to it. How can I change my feeling of being worthless to everyone?",sadness
+"I am very happy that I am achieving my goals",happiness
+"I have never tried or contemplated suicide. I've always wanted to fix my issues, but I never get around to it. How can I change my feeling of being worthless to everyone?",sadness
+"I am feeling really sad that I am not meeting my expectations",sadness
+"This is exciting and I can't wait to see what happens next",happiness
+"I have low self esteem but I've been happily married for almost 35 years.",sadness
+"I feel awful about the mistakes I made",sadness
+"I am scared of what the future holds",fear
+"got no one to talk to have no one around i ve been procrastinating on something for so long and i have no idea when i ll ever become serious or steadfast i just feel like a total waste i ve isolated myself which is making me go crazy right now no friend at all i m literally alone now feel like shit",sadness
+"I bought the book "at last a life" a few weeks ago and it's completely changed my view of anxiety and how to live with it. I'm certainly not 100 yet but I'm a lot closer since reading.",happiness
+"I love how our positive way is to laugh of ourselves and say fuck it. We accept our shit and life with that but it feels so good to be able to laugh and know that there is lots of people feeling the same.",happiness
+"I am really, really struggling with the sudden change in what's right. My family always mocked me for my compulsions and now they're on at *me* to wash my hands more. My medication isn't giving me the buffer anymore.",sadness
+"i was just unconciously procrastinating doing homework thank you",happiness
+"i feel so worthless because of it. seriously, i feel like i cant handle shit",sadness
+"I am facing severe depression and anxiety and I just feel like I am going through a lot. This really distracts me and I cannot get my mind off the things that are bothering me.",sadness
+"I have a traumatic experience when I was a young kid which lead to my trauma of not wanting to be around people",sadness
+"I am so angry at myself for not being more productive",anger
+"I've had a nightmare of a week as well - dealing with this stress on top of my school digging in its heels about midterms operating as normal has been actual hell.",sadness
+"I am feeling very anxious about the future",fear
+"I am so grateful for the support of my friends during this tough time",happiness
+"I am feeling very overwhelmed with everything going on in my life",sadness
+"How can I get to a place where I can be content from day to day?",sadness
+"I struggle with depression as well as pretty intense mood swings throughout the month.",sadness
+"I experience highs where I feel amazing and energetic and then lows where I lack focus, energy, and generally have a more dark outlook on my life. I have been diagnosed with bipolar disorder and I am on medication for it.",sadness
+"I have been working on my mental health for a while now and I am starting to see some progress, but I still have a long way to go.",happiness
+"I am feeling very anxious about the future",fear
+"Hey man, I know this post is 12h old and so I doubt you'll see this, but I see you man. I spent my whole life struggling trying to figure out wtf was wrong with me. I pushed myself to emotional breaking points over and over and over again. I enlisted in the Navy with my girlfriend and we were married while in together, I did 7 years and the whole time I pushed myself at the absolute limit even when I didn't have to, constantly wondering what the hell is broken in me.",sadness
+"I am so happy to have a supportive family",happiness
+"Thank you for this, this is a reminder for me to my partner with ADHD. I do my best to remember and take things in a different perspective. Thank you.",happiness
+"I am feeling very sad about the recent breakup",sadness
+"I am so grateful for the little things in life",happiness
+"I want to end my life.",sadness
+"i have been suffering from what i can only imagine is some kind of fairly severe depression for almost year now i m sorry if this post is hard to read i m new to redit and have been reading post in this sub and it just made me feel moved to share my story to start off my depression started almost year ago i wa in a wonderful relationship with this beautiful girl i had met in highschool and i had moved away to college but i still came home every weekend to see her everything wa going great and then over the course of a few week or month i don t even remember how it really started i just began to get more and more depressed at first i didn t think anything of it i m the middle child of other boy we grew up with a very abusive father until i wa when my mom took u and left and i just always through depression wa something only weak people got and i never fully understood it although now i know that my real father struggled while mental illness and sever depression anyway back to my story every in my life wa going great i had made new friend in college and my relationship wa going great i just could feel myself becoming more and more closed off and lonely even though i wa surrounded by amazing friend and family i began to fight with my girlfriend because she could tell i wa being distant we started to fight more and more the the distance only made it worse when i finally did open up to her all she knew to do wa tell her mother with made me miserable i hated that fact that i thought someone saw me a weak and i started to dread seeing her and her family a couple month into my depression and my girlfriend ha become the only person who truly know how i feel and is the only person i ever confide in then one day a close friend of my girlfriend commented suicide this absolutely destroyed her she became extremely depressed and started to have suicidal thought i then pushed all my problem aside and did my best to help her through her issue i took her to counseling and did everything i could to help her but she slowly got better and wa never the same and now with u both being depressed our relationship became miserable neither one of u were happy and we thought that if we split up maybe we would be able to find some joy in our life again so we broke up in made and these last 0 month have been the worst of my life she wa my best friend and the only person in the world i have ever loved it s gotten easier these past few month but i have lost all joy in my life everything i used to love i have no passion for anymore i m still in college but i don t every compete any off my work i never go to class i hardly ever sleep ill go or night sleeping maybe hour a night then ill just sleep hour straight i find no meaning in life anymore i just feel this giant empty hole in my chest that i can t feel my grandmother died last month we were extremely close and i never even shed a tear the rest of my family wa balling and i wa just sitting there with no emotion i m never happy i m not even sad i just feel absolutely nothing almost every other night i put my pistol to my head just hoping it ll go off because i m not man enough to actually pull the trigger i ve tried to move on and tried to get better i just don t know what to do and i have no one to tell i transferred college so i lost all the friend i had and i m too embarrassed to tell me family i ve read every self help book i can find and nothing doe it for me i just keep praying that one day soon god will take me off this earth because i don t know how to keep living like this i m sorry if this is too long and i know i jump around a lot and everything may not make sense i just wanted to get this off my chest and i m thankful there is a place for me to do that",sadness
+"I want to harm myself.",sadness
+"I live alone and despite me being prone to loneliness a i find myself to be emotionally needy i seem to have the urge to cut important people out of my life when i get depressed friend girlfriend i feel easily annoyed and judgmental even if they did nothing wrong i can t explain it maybe by posting here i can find some people that can relate it sort of like a feeling of i am better off alone doe anyone else find themselves constantly having the urge to push people away it feel like i am being consumed by depression again",sadness
+"I tried to help his family abandoned him so it wa really hard to change his perspective im addict too gambling addiction but i will do better i hope sorry just a rant i found about it yesterday his life situation forced him to live in a mental hospital for last year and at the beginning of march he wanted to go to the germany to work a escort march he mentioned that he leaf tomorrow march i texted are you alive yesterday by googling him i found a necrology of him he killed himself march he texted many time to me about suicide thought im so sad",sadness
+"I am so excited to start my new job",happiness
+"I am feeling very anxious about the upcoming exam",fear
+"I am so grateful for the little things in life",happiness
+"I am feeling very frustrated with my current situation",sadness
+"I am feeling very angry at myself for not being more productive",anger
+"I am feeling very lonely these days",sadness
+"I am so grateful for the support of my friends during this tough time",happiness
+"I am feeling very anxious about the future",fear
+"I am so excited to see my friends again",happiness
+"I am feeling very sad about the recent loss of a loved one",sadness
+"My boyfriend is so supportive and understanding, I am so grateful for him",happiness
+"I am feeling very anxious about the upcoming changes in my life",fear
+"My boyfriend broke up with me and I am feeling very sad about it",sadness
+"I am so happy to have a job that I love",happiness
+"I am feeling very anxious about the future of my career",fear
+"I am so excited to travel again",happiness
+"I am feeling very frustrated with my lack of motivation",sadness
+"I am so happy to have a job that I love",happiness
+"I self-harm, and I stop for awhile. Then when I see something sad or depressing, I automatically want to self-harm. I am trying to stop, but it is hard.",sadness
+"I am feeling very overwhelmed with everything going on in my life",sadness
+"Why can't I just be happy?",sadness
+"Why can't anyone just be proud of me?",sadness
+"I want to jump off this bridge",sadness
+"I am feeling very anxious about the upcoming changes at work",fear
+"Being Depressed is Embarrassing",sadness
+"I'm desperate for a friend and to feel loved by someone.",sadness
+"I really need a friend. I don't even have a single best friend and I'm desperate to find true love.",sadness
+"I really need a friend. I don't even have a single best friend and I'm desperate to find true love.",sadness
+"Hear me out... life in general sucks. We have to work the majority of our time in jobs we hate for people we don't care about to earn just about enough to live relatively comfortably.",sadness
+"Never in a million years did I think I'd be on Reddit writing something like this but maybe this is my soul trying to find some sort of salvation from the pain. I've been thrown into the proverbial fire as of late &amp; I feel like I'm just unable to get a grip on anything. I'm not sure if this is the right place to post this but I'm hoping that maybe someone can relate or has some advice.",sadness
+"I feel like I am not enough.",sadness
+"Normal. Damn I can actually express emotions and feel a sense of positivity.",happiness
+"I'm pretty sure this has been posted a million times here before. But I just feel like I'm done with life and I'm only 24, and no matter what it is I'm doing I'm either feeling anxious or depressed as they do come hand in hand. I don't enjoy hanging out with family or friends, I'd rather be alone but when I'm alone and at home I feel useless and depressed. I'm too tired to even explain in detail but I'm sure you all know this feeling. And I do know the steps to get out of this rut but that effort needed is draining itself … people that don't go through this are so lucky. I'm just feeling numb and depressed and I don't wanna do anything about it.",sadness
+"I think I need to talk to someone about my feelings.",sadness
+"I have been severely depressed since I was in elementary. I am in college now. I never intended to make it this far. I truly didn't see myself making it past 16. And now here I am, years later, wasting away because I didn't plan for this. I don't know what to do with myself. I don't know how to live. I don't know how to be happy. I don't know how to be sad. I just exist.",sadness
+"I am losing my mind",sadness
+" don't know what stopped me. My life feels so disposable right now. I have no job prospects after I graduate next year. No experience under my belt. No passion in what I'm studying or doing with my life. There is nothing in the long run that's keeping me here. I feel like I'm just wasting my time and everyone else's. I don't know what to do with myself. I don't know how to be happy. I don't know how to be sad. I just exist.",sadness
+"I want to believe it's the people in my life but the happiness they give me is only temporary. I can't depend on them forever to keep me up. I can no longer support myself. I have nothing.
+I am so tired of feeling this way. I am so tired of feeling like I am not enough. I am so tired of feeling like I am a burden to everyone around me.",sadness
+"I hate myself and I don't even know why at this point. I just hate myself and I wish I was someone else. I don't know who I want to be I just don't want to live this life anymore. I am so tired of feeling this way. I am so tired of feeling like I am not enough. I am so tired of feeling like I am a burden to everyone around me.",sadness
+"I am feeling very anxious about the upcoming exam",fear
+"I've been told have this or that personality trait but all I see in myself is emptiness. I don't know who I am or what I want. I feel like I am just going through the motions of life without any real purpose or direction.",sadness
+"I lost my mind over a girl. I can't seem to stop thinking about her. All of my friends are choosing her over me. I have no one here to support me. I don't know what to do.  She is driving me insane. I just feel like life is not worth it. I have nothing to live for. Please, someone help me. I'm losing my mind over this. How do I stop thinking about her. Please, anything will help.",sadness
+"Was feeling very low , not feeling like working and sleeping most of the time , feeling worth less and very lonely... wasn't able to deal with it. I was feeling like I am not enough and I am a burden to everyone around me. I was feeling like I am not worthy of love and happiness.",sadness
+"I am angry at myself for not trying harder",anger
+"When my parents pressure me in school work, I feel stressed and I cannot cope.",sadness
+"I feel like I am not doing well in everything",sadness
+"I feel overwhelmed and cannot sleep at night.",sadness
+"I am doing fine and enjoying my classes.",happiness
+"Sometimes I think about giving up.",sadness
+"I am so grateful for my family.",happiness
+"Life has been good lately.",happiness
+"I want to disappear, nothing makes sense.",sadness
+"Just had a fun weekend with friends!",happiness
+"I am so anxious about the future.",fear
+"I am really frustrated with my job.",anger
+"I feel like I am in a dark place.",sadness
+"I am excited about the new project at work.",happiness
+"I cannot stop thinking about my mistakes.",sadness
+"I am thrilled about the upcoming vacation!",happiness
+"I feel like I am losing control.",fear
+"I am so proud of my achievements.",happiness
+"I am really nervous about the exam.",fear
+"I am feeling hopeful about the future.",happiness
+"I am so angry at myself for not studying enough.",anger
+"I feel like I am in a rut.",sadness
+"I am so relieved that the project is finally done.",happiness
+"I am feeling very lonely these days.",sadness
+"I am so excited to see my friends again!",happiness
+"I am really worried about my health.",fear
+"I am feeling very content with my life.",happiness
+"I am so frustrated with the traffic today.",anger
+"I am feeling very optimistic about my career.",happiness
+"I am so scared about the upcoming surgery.",fear
+"I am feeling very nostalgic about my childhood.",happiness
+"I am so happy to have supportive friends.",happiness
+"I am feeling very stressed about my workload.",sadness
+"I am so excited about the concert next week!",happiness
+"I am feeling very anxious about the presentation.",fear
+"I am so grateful for the little things in life.",happiness
+"I am feeling very down today.",sadness
+"I am so excited about the new book release!",happiness
+"I am feeling very frustrated with my progress.",sadness
+"I am so happy to be alive.",happiness
+"I am feeling very anxious about the future of my relationship.",fear
+"I am so excited to start my new project!",happiness
+"I am feeling very sad about the recent breakup.",sadness
+"I am so happy to have a job that I love.",happiness
+"i suck at literally everything i always have sucked at everything ive tried so many different thing ive put in effort for it to be wasted im just wan na be something everyday im surrounded by people who are all skilled and talented and then there me i cant do anything and i mean anything ive never been good at anything ive always dreamt of it but everytime i try it just becomes a giant waste of time i just wish i could be good at something then id probably start to love a treat myself better it just suck when you re the only person you know who isnt interesting im about to just give up on caring for myself completely at this point",sadness
+"i used to be quite smart aced everything in high school had best result from my school in maturity exam european equivalent to sat used to do extra curricular shit like attending science fair going abroad for competition and shit used to play the piano play sport i wa in a pretty good shape etc i did well even during my first year of college then covid happened i stayed home got lazy played video game all day kinda stopped taking school and friend seriously year later and i am still in a slump i somehow managed to not drop out but nothing interest me now i dont want to do anything nothing make me happy most of the time i am alone and just sit in my room and watch video or play some shit while procrastinating my duty my grade got worse my back hurt i lost my shape can not run for more than minute my sleep schedule is all over the place i stay up until am and i either sleep like hour a day or hour all the time i am thinking about how i peaked in high school and am just wasting my life now i dont cry or anything a i wa never really in touch with my emotion so i dunno if this is depression burnout or what i just want to not feel like a piece of shit all the time i used to have high standard for myself now i cant seem to reach the bare minimum in order to exist normally doe anyone feel the same how do i get out of this state of mind",sadness
+"I am feeling very anxious about the upcoming changes in my life.",fear
+"i already failed out of college once but i thought i might try again at a community college well i m about to fail out of this too and for some reason nothing in me care a a child i always kind of assumed my life would be in a great place at how na ve since i ve been miserable for a long a i can remember why would life magically get any easier i just recently pieced together that my earliest memory which i never really allowed myself to understand wa my narcissistic mother attempting to drown me when i wa about year old no wonder i m so fucked up i ve been planning on killing myself before my rd birthday for the past month or so i suppose she'll get what she wanted all along",sadness 
+"I am so excited to learn new things!",happiness
+"I am feeling very anxious about the future.",fear
+"I am so proud of my team for completing the project.",happiness
+"I am feeling very overwhelmed with everything going on.",sadness
+"I am so excited to start my new job!",happiness
+"Sometimes I feel like I am not enough.",sadness
+"Sometimes I feel like I do not have worth.",sadness
+"i am a male who should be having the time of his life in college meeting new people getting a degree experiencing all that life ha to offer in reality i dont want to be here any more i feel that i am in people life to help them through their stuff and then one they re fix im out of their life i feel like there are maybe people in the world that would miss me if i wasn t here i feel like everything i do on a daily basis is to keep an appearance that i want to live and that i am doing thing for me i have never been this close to just accepting the fact and just not waking up tomorrow i know it might hurt some people that i know but i am dont suffering in silence and i am done with this facade that i have to keep up every single day of my life my life feel like it is on repeat the same thing happen and i dont feel anything besides not wanting to be here i dont feel emotion like others do i can go from laughing like im about to cry to a straight face within second i dont feel sadness i dont feel happiness like others i am in a constant state of numbness i dont want to play this game anymore im done with it there no one i trust that i can share this with and no one in my life truly understands this",sadness
+"so many mistake every decision made wrong so many wasted opportunity so much brutality so much evil so much sadness so much loneliness so much failure so much betrayal so many addiction so many false hope too many failure to bear how long can my heart beat with this suffering how long until i give up how long until i stop trying how long until i stop hoping how long until i stop believing how long until i stop caring how long until i stop feeling how long until i stop living",sadness
+"it s so pointless for me to still be alive my life is worthless why am i still here",sadness
+"i feel like i ruined my life by not taking my education seriously during high school i m unemployed and have zero goal in life i m not diagnosed with anything but i suspect that i have social anxiety depression and maybe add i have a really low self esteem regarding my intelligence but i am putting the effort into improving i m watching video and taking note on youtube about topic that i know i missed during high school in a way i do feel proud of myself but i find myself constantly pausing the video to look up a word that is unknown to me word that i feel like i should already know a an adult and i feel stupid and begin self loathing because of it i don t do this with just word though i also do this with just about any topic that i m not knowledgeable in there s just so much that i m embarrassingly unaware of all ranging between the science to world history to economics to politics to mathematics to literature even to basic english grammar there s just so much that i missed and i m feeling too overwhelmed by it all i don t know where to start to make matter worse i feel like i m being timed to learn all of these thing a i said earlier i m unemployed and i m living off of my saving i suppose i could get a job but i lack any real world skill i have nothing worthy to offer to any potential employer hiring me would just be an act of charity then there s also the fact that i m too shy to even talk to people i m afraid to open my mouth because i might reveal how stupid i truly am i have no one to talk to about this stuff because i know i ll just hear response like welp you shoulda payed more attention in school yeah i know that already what do i do now live a long miserable life until i finally succumb to old age well in that case i might a well just end it now there s no real point to this post aside from me venting a little i guess for the sake of asking a question what advice would you give to someone looking to homeschool himself i did graduate from high school btw don t ask me how because i don t know either",sadness
+"i just don t have the will to do much most day when i finally do get the energy to be productive it doesn t last any longer than a week i procrastinate all task even the easy one and i can t just can t think straight even one the day i am motivated to be productive i can t focus and i end up being really tired and unproductive i feel like i m wasting my life away and i m not sure what to do about it i don t know how to get out of this rut",sadness
+"I am feeling very sad about the recent news.",sadness
+"nothing is normal anymore i used to be this happy funny kid and now all i do is silently tear up and think about blowing my brain out like seriously there s nothing else to think about i feel like nobody care i m not going to talk to my father about this and my friend would only agree with me hel i didn t know if i should come here i can never sleep and when i do it s in the middle of class i keep everything inside and i think it s making go insane there s some worse stuff on here so i don t know if i belong here i m sorry for wasting your time",sadness
+"I am so happy to have a supportive partner.",happiness
+"I am feeling very anxious about the upcoming interview.",fear
+"i regret backing out of committing suicide pretty often i ve done it three time now overdosed once from the outside i know for a fact i look like a whiny teen i ve been told so many many time i m just tired of relapse i m tired of constantly putting everything i have into being better only to barely get anywhere and then being exhausted i m tired of being yelled at for thing i can t control and being told the same pathetic motivational quote like they ever mean anything i m tired of people praying for me saying i need to ask god for help god wasn t there for me when i wa being sexually assaulted god wasn t there for me when my mom got blackout drunk and beat my sister in front of me god wasn t there when i wa left alone for week because my dad would rather be anywhere else i don t care what people say god isn t real there is no divine protection and there is no savior there s life and death what happens in between is your problem i m tired of being labeled a mental case i m tired of seeing hallucination having flashback and i m tired of feeling manic i m tired of relying on prescription drug to be good enough for society i wish i had done in then because i have thing to live for now i have responsibility and thing that mean something to me it s like a dog having a bone dangled just far enough to where they can t get it i ve come to term that i ll never be what my parent wanted me to be and that my sister took on that role for me at a young age a nurse at dating to marry with a nice house in a nice neighborhood i m struggling to even have the will to get up and enroll myself in community college it s pathetic i work but i work at a sport bar and because of my disability my hour keep getting cut turn out nobody want to hire someone who can t be around many people or loud noise that go into a manic episode if triggered the more i think about what i am the more depressed i get without the medication i d most likely be labeled insane and put in a glorified prison again i take a lot of drug and still see and hear the shit that i do and i don t remember half of my life when i wa off of them i keep getting told that it s my fault by my mom and she is basically begging me to do something but nothing i ever do is good enough so why keep trying i don t know it s not logical to commit suicide at this point but i can t deny that i secretly hope a semi turn my car into a crushed can on my way to work ptsd severe depression crippling anxiety and psychotic disorder are not a good mix especially when you re lucid i don t know if i have a future i ve proven safe for society with reasonable accommodation but at what point doe it even matter anymore the fact that i need a crutch immediately set me apart and people notice",sadness
+"I am so excited to travel again!",happiness
+"I am feeling very frustrated with my current situation.",sadness
+"i think i am happy i have just went through a couple of month of sad dark feeling and thought best way i can explain it is a painful emptiness inside of me mentally for most of my life i have always remember going through these phase it never a on or off switch it just kinda slowly engulf me one day i feel a little bit sad and it start this snowball effect after a couple of month of the constant painful emotionless feeling i keep getting the same thought of just ending myself but today i think i am happy it is weird to explain but life seems a bit more vibrant music is touching me emotionally to the point i want to sing i hope today is the start of my happy phase and i really hope it last just a long i am so desperate to feel something again",happiness
+"I am so happy to have a loving family.",happiness
+"i haven t thought about killing myself since 0 yet here we are today year later getting closer to 0 and i m in the bathroom of my workplace and the only thing i can think of is slicing my wrist when i get home i haven t slept in 0 hour and i m seriously considering drinking my pain away maybe i ll puke in my sleep and get done with it i don t care if anyone will cry for me probably will but i m in pain so much pain guy",sadness
+"i wish people didnt give up on me so quickly because of how shy i am i wish they didnt view me a cold or mean because i never knew what to say so i just kept to myself i wish people didnt call me weird because i find it difficult to make eye contact i wish i didnt have to mask myself and pretend to be someone im not for the sake of fitting in i wish when my brother returned home from the military after year i had remembered how to properly communicate with him we seem like stranger now i wish i had been able to make friend even friend i wish i were able to get a girlfriend whats the meaning of life if you can t spend your time with someone you love i wish i didnt have autism i feel so isolated i feel so alone worst of all i know there is absolutely nothing i can do about it there are no pill for autism only mediocre therapy session to remind you of how different you are from those around you i cant do this anymore living like this is hell",sadness
+"recently i have been having a tough time dealing with my lack of motivation is really hard to care about anything specially when i always feel like im being forced to do anything even thing that i like to do it like im being constanly dragged through life how do you guy deal with extreme apathy and lack of motivation when you dont really have any interest in existing",sadness
+"I am feeling very anxious about the changes in my life.",fear
+"I am so excited to learn new things!",happiness
+"I am feeling very sad about the loss of a friend.",sadness
+"I am so happy to have a job that I love.",happiness
+"I am feeling very anxious about the future of my career.",fear
+"I am so excited to celebrate my birthday!",happiness
+"I am feeling very frustrated with my finances.",sadness
+"I am so happy to have a pet that brings me joy.",happiness
+"I am feeling very anxious about the upcoming move.",fear
+"I am so excited to see my family again!",happiness
+"I am feeling very sad about the end of a relationship.",sadness
+"I am so happy to have a hobby that I enjoy.",happiness
+"I am feeling very anxious about the current situation in the world.",fear
+"I am so excited to meet new people!",happiness
+"I am feeling very frustrated with my lack of progress.",sadness
+"I am so happy to have a supportive community.",happiness
+"I am feeling very anxious about the future of my health.",fear
+"I am so excited to start a new chapter in my life!",happiness
+"I am feeling very sad about the recent changes in my life.",sadness
+"I am so happy to have a mentor who believes in me.",happiness
+"I am feeling very anxious about the upcoming changes at work.",fear
+"I feel like I am making a difference in the world.",happiness
+"I am feeling very frustrated with the current political situation.",sadness
+"I am so happy to have a creative outlet.",happiness
+"I am feeling very anxious about the future of the planet.",fear
+"I feel like I am finally finding my purpose.",happiness
+"I am feeling very sad about the current state of the world.",sadness
+"I am so happy to have a strong support system.",happiness
+"I am feeling very anxious about the future of my relationships.",fear
+"I am so excited to explore new places!",happiness
+"I am feeling very frustrated with my lack of motivation.",sadness
+"I am so happy to have a job that challenges me.",happiness
+"I am feeling very anxious about the future of my finances.",fear
+"I am so excited to create new memories!",happiness
+"I am feeling very sad about the recent loss of a loved one.",sadness
+"I am so happy to have a positive mindset.",happiness
+"I am feeling very anxious about the upcoming changes in my life.",fear
+"I am so excited to achieve my goals!",happiness
+"I am feeling very frustrated with my current situation.",sadness
+"I am so happy to have a loving partner who supports me.",happiness
+"I am feeling very anxious about the future of my job.",fear
+"I am so excited to make new friends!",happiness
+"I am feeling very sad about the recent breakup.",sadness
+"I am so happy to have a fulfilling career.",happiness
+"I am feeling very anxious about the future of my health.",fear
+"I am so excited to learn new skills!",happiness
+=======
+I am very happy,happiness
+I'm feeling really sad,sadness
+This is exciting,happiness
+I feel awful,sadness
+I am scared,fear
+I'm angry,anger
+>>>>>>> parent of ef4a455 (added datasets for bert to train)
