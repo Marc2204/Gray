@@ -1,7 +1,101 @@
 text,label
-I am very happy,happiness
-I'm feeling really sad,sadness
-This is exciting,happiness
-I feel awful,sadness
-I am scared,fear
-I'm angry,anger
+"I am very happy",happiness
+"I'm feeling really sad",sadness
+"This is exciting",happiness
+"I feel awful",sadness
+"I am scared",fear
+"I'm angry",anger
+"I feel like I am not doing well in everything", sadness
+"I feel overwhelmed and can't sleep at night.", sadness
+"I'm doing fine and enjoying my classes.", happiness
+"Sometimes I think about giving up.",  sadness
+"I am so grateful for my family.", happiness
+"Life has been good lately.", happiness
+"I want to disappear, nothing makes sense.", sadness
+"Just had a fun weekend with friends!, happiness 
+"I am so anxious about the future.", fear
+"I am really frustrated with my job.", anger
+"I feel like I am in a dark place.", sadness
+"I am excited about the new project at work.", happiness
+"I can't stop thinking about my mistakes.", sadness
+"I am thrilled about the upcoming vacation!", happiness
+"I feel like I am losing control.", fear
+"I am so proud of my achievements.", happiness
+"I am really nervous about the exam.", fear
+"I am feeling hopeful about the future.", happiness
+"I am so angry at myself for not studying enough.", anger
+"I feel like I am in a rut.", sadness
+"I am so relieved that the project is finally done.", happiness
+"I am feeling very lonely these days.", sadness
+"I am so excited to see my friends again!", happiness
+"I am really worried about my health.", fear
+"I am feeling very content with my life.", happiness
+"I am so frustrated with the traffic today.", anger
+"I am feeling very optimistic about my career.", happiness
+"I am so scared about the upcoming surgery.", fear
+"I am feeling very nostalgic about my childhood.", happiness
+"I am so happy to have supportive friends.", happiness
+"I am feeling very stressed about my workload.", sadness
+"I am so excited about the concert next week!", happiness
+"I am feeling very anxious about the presentation.", fear
+"I am so grateful for the little things in life.", happiness
+"I am feeling very down today.", sadness
+"I am so excited about the new book release!", happiness
+"I am feeling very frustrated with my progress.", sadness
+"I am so happy to be alive.", happiness
+"I am feeling very anxious about the future.", fear
+"I am so proud of my team for completing the project.", happiness
+"I am feeling very overwhelmed with everything going on.", sadness
+"I am so excited to start my new job!", happiness
+"I am feeling very sad about the recent news.", sadness
+"I am so happy to have a supportive partner.", happiness
+"I am feeling very anxious about the upcoming interview.", fear
+"I am so excited to travel again!", happiness
+"I am feeling very frustrated with my current situation.", sadness
+"I am so happy to have a loving family.", happiness
+"I am feeling very anxious about the changes in my life.", fear
+"I am so excited to learn new things!", happiness
+"I am feeling very sad about the loss of a friend.", sadness
+"I am so happy to have a job that I love.", happiness
+"I am feeling very anxious about the future of my career.", fear
+"I am so excited to celebrate my birthday!", happiness
+"I am feeling very frustrated with my finances.", sadness
+"I am so happy to have a pet that brings me joy.", happiness
+"I am feeling very anxious about the upcoming move.", fear
+"I am so excited to see my family again!", happiness
+"I am feeling very sad about the end of a relationship.", sadness
+"I am so happy to have a hobby that I enjoy.", happiness
+"I am feeling very anxious about the current situation in the world.", fear
+"I am so excited to meet new people!", happiness
+"I am feeling very frustrated with my lack of progress.", sadness
+"I am so happy to have a supportive community.", happiness
+"I am feeling very anxious about the future of my health.", fear
+"I am so excited to start a new chapter in my life!", happiness
+"I am feeling very sad about the recent changes in my life.", sadness
+"I am so happy to have a mentor who believes in me.", happiness
+"I am feeling very anxious about the upcoming changes at work.", fear
+"I feel like I am making a difference in the world.", happiness
+"I am feeling very frustrated with the current political situation.", sadness
+"I am so happy to have a creative outlet.", happiness
+"I am feeling very anxious about the future of the planet.", fear
+"I feel like I am finally finding my purpose.", happiness
+"I am feeling very sad about the current state of the world.", sadness
+"I am so happy to have a strong support system.", happiness
+"I am feeling very anxious about the future of my relationships.", fear
+"I am so excited to explore new places!", happiness
+"I am feeling very frustrated with my lack of motivation.", sadness
+"I am so happy to have a job that challenges me.", happiness
+"I am feeling very anxious about the future of my finances.", fear
+"I am so excited to create new memories!", happiness
+"I am feeling very sad about the recent loss of a loved one.", sadness
+"I am so happy to have a positive mindset.", happiness
+"I am feeling very anxious about the upcoming changes in my life.", fear
+"I am so excited to achieve my goals!", happiness
+"I am feeling very frustrated with my current situation.", sadness
+"I am so happy to have a loving partner who supports me.", happiness
+"I am feeling very anxious about the future of my job.", fear
+"I am so excited to make new friends!", happiness
+"I am feeling very sad about the recent breakup.", sadness
+"I am so happy to have a fulfilling career.", happiness
+"I am feeling very anxious about the future of my health.", fear
+"I am so excited to learn new skills!", happiness
