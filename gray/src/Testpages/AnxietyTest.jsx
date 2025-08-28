@@ -23,22 +23,22 @@ const logisticRegression = (score) => {
   if (score >= 15) {
     return {
       result: "Severe Anxiety – Consider professional help.",
-      description: "Your score suggests that you may be experiencing severe anxiety. It is recommended that you seek professional help, such as a therapist or counselor. This level of anxiety can significantly impact your daily life, and treatment options such as therapy or medication may be beneficial.",
+      description: "Your score suggests that you may be experiencing severe anxiety. It is recommended that you seek professional help, such as a therapist or counselor."
     };
   } else if (score >= 10) {
     return {
       result: "Moderate Anxiety – Keep monitoring.",
-      description: "Your score suggests moderate anxiety. You may be experiencing stress or anxiety that is affecting your ability to relax or concentrate. It’s important to continue monitoring your mental health and consider self-care strategies or talking to a professional.",
+      description: "Your score suggests moderate anxiety. You may be experiencing stress or anxiety that is affecting your ability to relax or concentrate."
     };
   } else if (score >= 5) {
     return {
       result: "Mild Anxiety – Be mindful of your well-being.",
-      description: "Your score suggests mild anxiety. This level may be temporary and linked to stress or life events. Keep an eye on your emotional well-being and try practices like mindfulness, exercise, or healthy routines.",
+      description: "Your score suggests mild anxiety. This level may be temporary and linked to stress or life events."
     };
   } else {
     return {
       result: "Minimal Anxiety – Keep taking care of yourself!",
-      description: "Your score indicates minimal anxiety, which is great. While stress is normal, your levels seem manageable. Continue your healthy habits and watch for any changes.",
+      description: "Your score indicates minimal anxiety, which is great."
     };
   }
 };
@@ -48,6 +48,7 @@ const AnxietyTest = () => {
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState(null);
   const [score, setScore] = useState(0);
+  const [hybridRisk, setHybridRisk] = useState(null);
   const [isChatbotVisible, setIsChatbotVisible] = useState(false);
 
   const chatbotButtonRef = useRef(null);
@@ -104,7 +105,7 @@ const AnxietyTest = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (Object.keys(answers).length < questions.length) {
       alert("Please answer all the questions before submitting.");
       return;
@@ -118,6 +119,22 @@ const AnxietyTest = () => {
     setScore(totalScore);
     setResult(anxietyResult);
     setShowResult(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/hybrid_risk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lr_score: totalScore / (questions.length * 3), // normalized 0–1
+          text: "User completed the anxiety test" // Replace with actual free text if available
+        })
+      });
+
+      const data = await response.json();
+      setHybridRisk(data);
+    } catch (error) {
+      console.error("Error sending hybrid risk data:", error);
+    }
 
     if (anxietyResult.result.startsWith("Severe Anxiety")) {
       setIsChatbotVisible(true);
@@ -147,6 +164,16 @@ const AnxietyTest = () => {
             </div>
           ))}
           <button onClick={handleSubmit} className="submit-button">SUBMIT</button>
+         <div className="test-source">
+            <h2>Source:</h2>
+            <p>
+              Developed by : Kroenke K, Spitzer RL, Williams JB. The PHQ-9: Validity of a brief depression severity measure. Journal of General Internal Medicine. 2001;16(9):606-613.
+            </p>
+            <a href="https://www2.gov.bc.ca/assets/gov/health/practitioner-pro/bc-guidelines/depression_patient_health_questionnaire.pdf?fbclid=IwY2xjawMacT9leHRuA2FlbQIxMABicmlkETFVcVhYUmlucm9DelMxR0M2AR783ZyYa5Ux0q8tOlBbQTxtFUkiMBB18cuzeJ2GLsdhihkfjSCLqyICSt6S6g_aem_ENDrl0SsoTh_OQ-ePRgO7w" target="_blank" rel="noopener noreferrer">
+              https://www2.gov.bc.ca/assets/gov/health/practitioner-pro/bc-guidelines/depression_patient_health_questionnaire.pdf
+            </a>
+            <p><strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider.</p>
+          </div>
         </div>
       ) : (
         <div className="result-section">
@@ -154,6 +181,18 @@ const AnxietyTest = () => {
           <p><strong>Score:</strong> {score} / {questions.length * 3}</p>
           <p><strong>{result.result}</strong></p>
           <p>{result.description}</p>
+
+          {hybridRisk && (
+            <div className="hybrid-risk-section" style={{ marginTop: "1.5rem" }}>
+              <h3>Hybrid Risk Assessment</h3>
+              <p><strong>Logistic Regression Score:</strong> {hybridRisk.lr_score}</p>
+              <p><strong>BERT Anomaly Score:</strong> {hybridRisk.bert_anomaly_score}</p>
+              <p><strong>Final Risk:</strong> {hybridRisk.final_risk}</p>
+              <p><strong>High Risk:</strong> {hybridRisk.is_high_risk ? "Yes" : "No"}</p>
+            </div>
+            
+          )}
+
           <h3>Your Answers:</h3>
           <ul>
             {questions.map((question, index) => (

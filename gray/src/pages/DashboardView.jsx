@@ -13,13 +13,13 @@ const DashboardView = () => {
   const [showPeerSupport, setShowPeerSupport] = useState(false);
   const [selectedSpace, setSelectedSpace] = useState("Community Support");
   const chatbotButtonRef = useRef(null);
-  const testButtonsRef = useRef(null); // NEW: ref for TestButtons
+  const testButtonsRef = useRef(null); // ref for TestButtons
 
   const supportCards = [
     { title: "Things to Try on Your Own", space: "Suggested Actions" },
     { title: "Connect with Others", space: "Community Support" },
-    { title: "Find a Provider", space: "1-on-1 Support" },
-    { title: "Learn About Support", space: "Mental Health" },
+    { title: "About Developers", space: "About Developers" },
+    { title: "About System", space: "About System" },
   ];
 
   const openModal = (content) => {
@@ -83,6 +83,7 @@ const DashboardView = () => {
 
   return (
     <div className="dashboard-container">
+      {/* Section 1: Mental Health Importance */}
       <div className="dashboard-1">
         <div id="title1">
           <strong>Why is mental health important?</strong>
@@ -121,11 +122,9 @@ const DashboardView = () => {
         )}
       </div>
 
-      {/* Ref added here */}
-      <div className="dashboard-buttons" ref={testButtonsRef}>
-        <TestButtons />
-      </div>
+      
 
+      {/*Support Options */}
       <div className="dashboard-2">
         <p><strong>Find Support That Works for You</strong></p>
         <div className="dashboard-description2">
@@ -150,6 +149,10 @@ const DashboardView = () => {
         </div>
       </div>
 
+
+      
+      
+      {/* Peer Support Modal Section */}
       {showPeerSupport && (
         <div className="peer-support-section">
           <PeerSupport initialSpace={selectedSpace} />
@@ -159,8 +162,17 @@ const DashboardView = () => {
         </div>
       )}
 
+
+      {/*Test Buttons */}
+      <div ref={testButtonsRef}>
+        <TestButtons />
+      </div>
+
+      
+      {/* About Developer Section */}
       <About openModal={openModal} />
 
+      {/* Developer Modal */}
       {isModalOpen && modalContent?.type === "developer" && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -171,14 +183,16 @@ const DashboardView = () => {
         </div>
       )}
 
+      {/* Chatbot Toggle Button */}
       <button
         onClick={toggleChatbot}
         ref={chatbotButtonRef}
-        className="footer-button"
+        className="Chatbot-toggle-button"
       >
-        {isChatbotVisible ? "Hide Chatbot" : "Open Chatbot"}
+        {isChatbotVisible ? " 🤖 " : " 🤖 "}
       </button>
 
+      {/* Chatbot Component */}
       {isChatbotVisible && (
         <div className="chatbot-wrapper">
           <Chatbot />

@@ -9,7 +9,7 @@ const Wellbeing = () => {
       <div className="mental-description">
         <h2>Well-Being Test</h2>
         <p>
-          The <strong>WHO-5 Well-Being Index</strong> is a short and simple questionnaire developed by the World Health Organization. It helps assess your <strong>emotional well-being over the last two weeks</strong>. This is <em>not a diagnostic tool</em>, but rather a way to reflect on how you're feeling and whether you might benefit from support.
+          The <strong>WHO-5 (Well-Being Index)</strong> is a short and simple questionnaire developed by the World Health Organization. It helps assess your <strong>emotional well-being over the last two weeks</strong>. This is <em>not a diagnostic tool</em>, but rather a way to reflect on how you're feeling and whether you might benefit from support.
         </p>
         <p>
           You'll be asked to respond to <strong>5 statements</strong> related to:

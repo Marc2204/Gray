@@ -2,6 +2,14 @@ import React from "react";
 import "../componentDesign/HeaderFooter.css";
 
 const Footer = ({ setShowHelp, setShowAbout, setShowDevs }) => {
+  const conditions = [
+    { name: "Depression", link: "https://www.mayoclinic.org/diseases-conditions/depression/symptoms-causes/syc-20356007" },
+    { name: "Anxiety", link: "https://www.mayoclinic.org/diseases-conditions/anxiety/symptoms-causes/syc-20350961" },
+    { name: "Eating Disorders", link: "https://www.nimh.nih.gov/health/topics/eating-disorders" },
+    { name: "Big Five Inventory", link: "https://www.verywellmind.com/the-big-five-personality-dimensions-2795422" },
+    { name: "Well-Being", link: "https://www.psychologytoday.com/us/blog/click-here-for-happiness/201901/what-is-well-being-definition-types-and-well-being-skills" },
+  ];
+
   return (
     <div className="footer">
       <div className="help-signup">
@@ -33,18 +41,23 @@ const Footer = ({ setShowHelp, setShowAbout, setShowDevs }) => {
           <div>
             <h4>Learn about Mental Health Conditions</h4>
             <ul>
-              
-              
-              <li>Depression</li>
-              <li>Anxiety</li>
-              <li>Eating Disorders</li>
-              <li>Big Five Inventory</li>
-              <li>Well-being</li>
-              
+              {conditions.map((condition, index) => (
+                <li key={index}>
+                  <a
+                    href={condition.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="condition-link"
+                  >
+                    {condition.name}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
       </div>
+      
       <p>&copy; 2025 Mental Health Dashboard. All rights reserved.</p>
     </div>
   );

@@ -27,7 +27,7 @@ function Chatbot({ severeAlert }) {
 
     const topics = [
       {
-        keywords: ['depression', 'depressed', 'hopeless'],
+        keywords: ['depression', 'depressed', 'hopeless', 'depress'],
         response: `Depression is a common mental health condition that causes a persistent feeling of sadness and changes in how you think, sleep, eat and act. It is treatable—usually with therapy, medication, or both. Seek help if you notice these symptoms:\n
 1. Persistent sadness\n
 2. Loss of interest\n

@@ -153,10 +153,10 @@ const Login = ({ onClose }) => {
             <input
               type="tel"
               name="phone"
-              placeholder="Phone Number"
+              placeholder="Phone Number (Optional)"
               value={registerData.phone}
               onChange={handleRegisterChange}
-              required
+              //required
             />
             <input
               type="password"

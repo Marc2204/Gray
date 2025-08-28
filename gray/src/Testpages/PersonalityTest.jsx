@@ -3,16 +3,16 @@ import { useNavigate } from "react-router-dom";
 import "../testDesign/EatingTest.css";
 
 const questions = [
-  { id: 1, text: "I see myself as someone who is talkative.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
-  { id: 2, text: "I see myself as someone who is reserved.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
-  { id: 3, text: "I see myself as someone who is outgoing, sociable.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
-  { id: 4, text: "I see myself as someone who tends to find fault with others.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
-  { id: 5, text: "I see myself as someone who is helpful and unselfish with others.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
-  { id: 6, text: "I see myself as someone who is relaxed, handles stress well.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
-  { id: 7, text: "I see myself as someone who gets nervous easily.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
-  { id: 8, text: "I see myself as someone who has frequent mood swings.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
-  { id: 9, text: "I see myself as someone who is curious about many different things.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
-  { id: 10, text: "I see myself as someone who is full of energy.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
+  { id: 1, text: "I see myself as someone who is reserved.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
+  { id: 2, text: "I see myself as someone who is generally trusting.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
+  { id: 3, text: "I see myself as someone who tends to be lazy.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
+  { id: 4, text: "I see myself as someone who is relaxed, handles stress well.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
+  { id: 5, text: "I see myself as someone who has few artistic interests.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
+  { id: 6, text: "I see myself as someone who is outgoing, sociable.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
+  { id: 7, text: "I see myself as someone who tends to find fault with others.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
+  { id: 8, text: "I see myself as someone who does a thorough job.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
+  { id: 9, text: "I see myself as someone who gets nervous easily.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
+  { id: 10, text: "I see myself as someone who has an active imagination.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
 ];
 
 const optionValues = {
@@ -26,10 +26,10 @@ const optionValues = {
 const calculatePersonality = (scores) => {
   return {
     Extraversion: scores[0] + scores[2] + scores[9],
-    Agreeableness: scores[4] + (6 - scores[3]), // reverse-coded
+    Agreeableness: scores[4] + (6 - scores[3]),
     Neuroticism: scores[6] + scores[7],
     Openness: scores[8],
-    Conscientiousness: scores[5] + (6 - scores[1]), // reverse-coded
+    Conscientiousness: scores[5] + (6 - scores[1]),
   };
 };
 
@@ -51,6 +51,7 @@ const PersonalityTest = () => {
   const [answers, setAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState(null);
+  const [hybridRisk, setHybridRisk] = useState(null);
 
   const handleOptionSelect = (questionIndex, selectedOption) => {
     setAnswers((prev) => ({
@@ -59,7 +60,7 @@ const PersonalityTest = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (Object.keys(answers).length < questions.length) {
       alert("Please answer all questions before submitting.");
       return;
@@ -67,8 +68,29 @@ const PersonalityTest = () => {
 
     const scoreArray = Object.values(answers).map((ans) => optionValues[ans]);
     const personalityTraits = calculatePersonality(scoreArray);
-
     setResult(personalityTraits);
+
+    // Calculate a single normalized score (example: average of all answers / 5)
+    const totalScore = scoreArray.reduce((a, b) => a + b, 0);
+    const normalizedScore = totalScore / (questions.length * 5); // 0-1 range
+
+    // Send to Flask hybrid_risk endpoint
+    try {
+      const response = await fetch("http://127.0.0.1:5000/hybrid_risk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lr_score: normalizedScore,
+          text: "Personality test responses for BERT analysis"
+        })
+      });
+
+      const data = await response.json();
+      setHybridRisk(data);
+    } catch (error) {
+      console.error("Error sending to hybrid_risk:", error);
+    }
+
     setShowResult(true);
   };
 
@@ -89,11 +111,8 @@ const PersonalityTest = () => {
                   >
                     {option}
                   </button>
-                  
                 ))}
               </div>
-
-              
             </div>
           ))}
 
@@ -102,25 +121,17 @@ const PersonalityTest = () => {
           <div className="test-source">
             <h2>Source:</h2>
             <p>
-            To permit its use in
-cross-cultural research, the BFI-10 was developed simultaneously in several samples in both English
-and German. Results focus on the psychometric characteristics of the 2-item scales on the BFI-10,
-including their part-whole correlations with the BFI-44 scales, retest reliability, structural validity,
-convergent validity with the NEO-PI-R and its facets, and external validity using peer ratings. Overall, results indicate that the BFI-10 scales retain significant levels of reliability and validity
-
+              The BFI-10 was developed simultaneously in several samples in both English and German. 
+              It retains significant levels of reliability and validity compared to the full BFI-44.
             </p>
-
             <a
               href="https://homepages.se.edu/cvonbergen/files/2013/01/Measuring-Personality-in-One-Minute-or-Less_A-10-Item-Short-Version-of-the-Big-Five-Inventory-in-English-and-German.pdf"
               target="_blank"
               rel="noopener noreferrer"
             >
-              hhttps://homepages.se.edu/cvonbergen/files/2013/01/Measuring-Personality-in-One-Minute-or-Less_A-10-Item-Short-Version-of-the-Big-Five-Inventory-in-English-and-German.pdf
+              Link to full paper
             </a>
-
-            <p><strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider. Mental Health Assessment and the researchers disclaim any liability, loss, or risk incurred as a consequence, directly or indirectly, from the use and application of these screens.</p>
           </div>
-
         </div>
       ) : (
         <div className="result-section">
@@ -134,6 +145,16 @@ convergent validity with the NEO-PI-R and its facets, and external validity usin
             ))}
           </ul>
 
+          {hybridRisk && (
+            <div className="hybrid-risk-section">
+              <h3>Hybrid Risk Assessment</h3>
+              <p><strong>Hybrid Score:</strong> {hybridRisk.hybrid_score}</p>
+              <p><strong>Interpretation:</strong> {hybridRisk.interpretation}</p>
+              <p><strong>Logistic Regression Score:</strong> {hybridRisk.lr_score}</p>
+              <p><strong>BERT Score:</strong> {hybridRisk.bert_score}</p>
+            </div>
+          )}
+
           <h3>Your Answers:</h3>
           <ul>
             {questions.map((q, i) => (
@@ -143,9 +164,11 @@ convergent validity with the NEO-PI-R and its facets, and external validity usin
               </li>
             ))}
           </ul>
+
           <p style={{ marginTop: "3rem", textAlign: "justify" }}>
-  <strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider. Mental Health Assessment and the researchers disclaim any liability, loss, or risk incurred as a consequence, directly or indirectly, from the use and application of these screens.
-</p>
+            <strong>Please note:</strong> Online screening tools are not diagnostic instruments.
+            You are encouraged to share your results with a physician or healthcare provider.
+          </p>
         </div>
       )}
     </div>

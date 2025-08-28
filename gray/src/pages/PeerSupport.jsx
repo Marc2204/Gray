@@ -6,10 +6,8 @@ import './PeerSupport.css';
 const userSpaces = [
     'Community Support',
     'Suggested Actions',
-    '1-on-1 Support',
-    'Mental Health',
-    'Motivation',
-    'Life Advice',
+    'About Developers',
+    'About System'
 ];
 
 const adminSpaces = [
@@ -33,7 +31,7 @@ const PeerSupport = ({ initialSpace = 'Community Support' }) => {
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [email, setEmail] = useState('');
-    const [csvFile, setCsvFile] = useState(null); // 📌 CSV file state
+    const [csvFile, setCsvFile] = useState(null);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, user => {
@@ -135,6 +133,46 @@ const PeerSupport = ({ initialSpace = 'Community Support' }) => {
             );
         }
 
+        if (activeSpace === 'About Developers') {
+            return (
+                <div className="about-developer">
+                    <h3>👨‍💻 About the Developers</h3>
+                    <p>
+                        This platform was developed as part of the thesis project: <br />
+                        <strong>"Mental Health Assessment Using Logistic Regression for Early Detection of Psychological Distress"</strong>.
+                    </p>
+
+                    <ul className="developer-team">
+                        <li>👨‍💻 <strong>MARC RAINIER B. BUITIZON</strong> – Lead Programmer</li>
+                        <li>📋 <strong>Jeffrey Ramirez</strong> – Project Leader</li>
+                        <li>🛠 <strong>Gabriela Enriquez</strong> – System Manager</li>
+                        <li>🎨 <strong>Jensha Maniflor</strong> – Designer</li>
+                    </ul>
+
+                    <p>
+                        Our goal is to integrate AI-assisted analysis with peer support to encourage early detection 
+                        of psychological distress while providing a safe and anonymous platform for sharing thoughts.
+                    </p>
+                    <p className="note">
+                        💡 Disclaimer: This platform does not replace professional diagnosis or treatment. 
+                        If you’re in crisis, please seek immediate help from a licensed professional or 
+                        mental health hotline.
+                    </p>
+                </div>
+            );
+        }
+        if (activeSpace === 'About System') {
+    return (
+        <div className="about-system">
+            <h3>🖥️ About the System</h3>
+            <p>
+               This system is designed to help people in understanding and self-evaluation of their mental well-being using Artificial Intelligence. There are tests for anxiety, depression, general well- being, and personality characteristics. The scoring in different categories is analyzed via a logistic regression model, which further helps in classifying the results as per risk levels. An AI chatbot helps one in guided self-reflection; a peer support is there for enabling safe, anonymous sharing and encouragement. The system is designed with the perspective of user privacy, ethical interactions, and early detection to support overall mental well-being.
+            </p>
+
+        </div>
+    );
+}
+
         return (
             <>
                 <div className="posts-list">
@@ -186,7 +224,6 @@ const PeerSupport = ({ initialSpace = 'Community Support' }) => {
 
                 {renderMainContent()}
 
-                {/* Admin CSV Upload Section */}
                 {isAdmin && (
                     <div className="csv-upload">
                         <h4>📊 Train Emotion Classifier</h4>
@@ -258,6 +295,7 @@ const PostCard = ({ post, space, posts, setPosts, isAdmin }) => {
                 {isAdmin && post.userName && <span className="poster-name">{post.userName}:</span>}
                 {!isAdmin && 'Anonymous:'} {post.text}
                 <span className="emotion-tag"> ({post.emotion})</span>
+                <button className='delete-button'>Delete</button>
             </p>
             <div className="comment-area">
                 <input

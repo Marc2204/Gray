@@ -3,31 +3,11 @@ import { useNavigate } from "react-router-dom";
 import "../testDesign/EatingTest.css";
 
 const questions = [
-  {
-    id: 1,
-    text: "I have felt cheerful and in good spirits.",
-    options: ["At no time", "Less than half the time", "More than half the time", "Some of the time", "Most of the time", "All of the time"],
-  },
-  {
-    id: 2,
-    text: "I have felt calm and relaxed.",
-    options: ["At no time", "Less than half the time", "More than half the time", "Some of the time", "Most of the time", "All of the time"],
-  },
-  {
-    id: 3,
-    text: "I have felt active and vigorous.",
-    options: ["At no time", "Less than half the time", "More than half the time", "Some of the time", "Most of the time", "All of the time"],
-  },
-  {
-    id: 4,
-    text: "I woke up feeling fresh and rested.",
-    options: ["At no time", "Less than half the time", "More than half the time", "Some of the time", "Most of the time", "All of the time"],
-  },
-  {
-    id: 5,
-    text: "My daily life has been filled with things that interest me.",
-    options: ["At no time", "Less than half the time", "More than half the time", "Some of the time", "Most of the time", "All of the time"],
-  },
+  { id: 1, text: "I have felt cheerful and in good spirits.", options: ["At no time", "Less than half the time", "More than half the time", "Some of the time", "Most of the time", "All of the time"] },
+  { id: 2, text: "I have felt calm and relaxed.", options: ["At no time", "Less than half the time", "More than half the time", "Some of the time", "Most of the time", "All of the time"] },
+  { id: 3, text: "I have felt active and vigorous.", options: ["At no time", "Less than half the time", "More than half the time", "Some of the time", "Most of the time", "All of the time"] },
+  { id: 4, text: "I woke up feeling fresh and rested.", options: ["At no time", "Less than half the time", "More than half the time", "Some of the time", "Most of the time", "All of the time"] },
+  { id: 5, text: "My daily life has been filled with things that interest me.", options: ["At no time", "Less than half the time", "More than half the time", "Some of the time", "Most of the time", "All of the time"] },
 ];
 
 const optionValues = {
@@ -74,6 +54,7 @@ const WellTest = () => {
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState(null);
   const [score, setScore] = useState(0);
+  const [hybridRisk, setHybridRisk] = useState(null);
 
   const handleOptionSelect = (questionIndex, selectedOption) => {
     setAnswers((prev) => ({
@@ -82,7 +63,7 @@ const WellTest = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (Object.keys(answers).length < questions.length) {
       alert("Please answer all questions before submitting.");
       return;
@@ -96,6 +77,24 @@ const WellTest = () => {
     setScore(totalScore);
     setResult(wellBeingResult);
     setShowResult(true);
+
+    // Send to Flask hybrid_risk endpoint
+    try {
+      const response = await fetch("http://127.0.0.1:5000/hybrid_risk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lr_score: totalScore / (questions.length * 5), // normalize 0–1
+          text: "WHO-5 Well-being responses submitted by user."
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Hybrid risk response:", data);
+      setHybridRisk(data);
+    } catch (error) {
+      console.error("Error sending hybrid risk data:", error);
+    }
   };
 
   return (
@@ -119,31 +118,22 @@ const WellTest = () => {
               </div>
             </div>
           ))}
+          <button onClick={handleSubmit} className="submit-button">SUBMIT</button>
 
-          <button onClick={handleSubmit} className="submit-button">
-            SUBMIT
-          </button>
           <div className="test-source">
             <h2>Source:</h2>
             <p>
-            The WHO-5 was developed during the 1990s by the late Per Bech of the Psychiatric
-Centre North Zealand (Copenhagen, Denmark), which hosted a WHO Collaborating
-Centre for Mental Health. The WHO-5 was derived from other scales and studies by the
-WHO Regional Office in Europe
-
+              The WHO-5 was developed during the 1990s by the late Per Bech of the Psychiatric Centre North Zealand (Copenhagen, Denmark), which hosted a WHO Collaborating Centre for Mental Health. The WHO-5 was derived from other scales and studies by the WHO Regional Office in Europe.
             </p>
-
             <a
-              href="https://cdn.who.int/media/docs/default-source/mental-health/who-5_english-original4da539d6ed4b49389e3afe47cda2326a.pdf?sfvrsn=ed43f352_11&download#:~:text=The%20WHO%2D5%20was%20developed,Europe%20%5B1%5D%5B2%5D."
+              href="https://cdn.who.int/media/docs/default-source/mental-health/who-5_english-original4da539d6ed4b49389e3afe47cda2326a.pdf"
               target="_blank"
               rel="noopener noreferrer"
             >
-              https://cdn.who.int/media/docs/default-source/mental-health/who-5_english-original4da539d6ed4b49389e3afe47cda2326a.pdf?sfvrsn=ed43f352_11&download#:~:text=The%20WHO%2D5%20was%20developed,Europe%20%5B1%5D%5B2%5D.
+              WHO-5 Source PDF
             </a>
-
-            <p><strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider. Mental Health Assessment and the researchers disclaim any liability, loss, or risk incurred as a consequence, directly or indirectly, from the use and application of these screens.</p>
+            <p><strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider.</p>
           </div>
-
         </div>
       ) : (
         <div className="result-section">
@@ -151,6 +141,15 @@ WHO Regional Office in Europe
           <p><strong>Score:</strong> {score} / {questions.length * 5}</p>
           <p><strong>{result.result}</strong></p>
           <p>{result.description}</p>
+
+          {hybridRisk && (
+            <div className="hybrid-risk-section">
+              <h3>Hybrid Risk Assessment</h3>
+              <p><strong>BERT Score:</strong> {hybridRisk.bert_score.toFixed(3)}</p>
+              <p><strong>Logistic Regression Score:</strong> {hybridRisk.lr_score.toFixed(3)}</p>
+              <p><strong>Hybrid Risk Score:</strong> {hybridRisk.hybrid_risk_score.toFixed(3)}</p>
+            </div>
+          )}
 
           <h3>Your Answers:</h3>
           <ul>
@@ -162,8 +161,8 @@ WHO Regional Office in Europe
             ))}
           </ul>
           <p style={{ marginTop: "3rem", textAlign: "justify" }}>
-  <strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider. Mental Health Assessment and the researchers disclaim any liability, loss, or risk incurred as a consequence, directly or indirectly, from the use and application of these screens.
-</p>
+            <strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider.
+          </p>
         </div>
       )}
     </div>

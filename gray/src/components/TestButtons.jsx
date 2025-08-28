@@ -7,6 +7,7 @@ import { onAuthStateChanged } from "firebase/auth";
 const TestButtons = () => {
   const [user, setUser] = useState(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [hasCommented, setHasCommented] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,7 +16,7 @@ const TestButtons = () => {
     });
     return () => unsubscribe();
   }, []);
-
+  
   const handleTestClick = (path) => {
     if (user) {
       navigate(path);
@@ -30,12 +31,21 @@ const TestButtons = () => {
         <h2>Take a Mental Health Test</h2>
       </div>
 
-      <div className="test-button-group">
-        <button onClick={() => handleTestClick("/anxiety")}>Anxiety Test</button>
-        <button onClick={() => handleTestClick("/depression")}>Depression Test</button>
-        <button onClick={() => handleTestClick("/well-being")}>Well-Being Test</button>
-        <button onClick={() => handleTestClick("/eating-disorder")}>Personality Test</button>
-      </div>
+        <div className="test-button-group">
+          <button className="test-button" onClick={() => handleTestClick("/anxiety")}>
+            Anxiety Test
+          </button>
+          <button className="test-button" onClick={() => handleTestClick("/depression")}>
+            Depression Test
+          </button>
+          <button className="test-button" onClick={() => handleTestClick("/well-being")}>
+            Well-Being Test
+          </button>
+          <button className="test-button" onClick={() => handleTestClick("/eating-disorder")}>
+            Personality Test
+          </button>
+        </div>
+     
 
       {showLoginPrompt && (
         <div className="modal-overlay">

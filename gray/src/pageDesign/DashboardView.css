@@ -50,7 +50,7 @@
 }
 
 /* Chatbot Button Styling */
-.footer-button {
+.Chatbot-toggle-button {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -66,7 +66,7 @@
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.footer-button:hover {
+.Chatbot-toggle-button:hover {
   background-color: rgba(40, 107, 151, 0.9);
   color: #e6f0ff;
   transform: scale(1.05);

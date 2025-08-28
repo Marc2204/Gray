@@ -10,8 +10,6 @@
   }
   
   /* Shared base style for all about cards */
-  .about-system,
-  .about-devs,
   .about-conditions {
     flex: 1 1 30%;
     padding: 2rem;
@@ -22,31 +20,16 @@
   
   /* === Individual Card Styles === */
   
-  .about-system {
-    margin-top: 10%;
-    background-color: rgba(127, 236, 255, 0.226);
-    color: var(--text-dark);
-    border-radius: 30px;
-  }
-  
-  .about-devs {
-    background: #6fa8ffb6;
-    color: #ffffff;
-    margin-top: 6rem;
-    border-radius: 3px 30px 30px 30px;
-  }
   
   .about-conditions {
     
     margin-bottom: 6rem;
     background: #476da56b;
     color: #444;
-    border-radius: 30px 30px 3px 30px;
+    border-radius: 30px 30px 30px 30px;
   }
   
   /* Headings */
-  .about-system h2,
-  .about-devs h2,
   .about-conditions h2 {
     text-align: center;
     margin-bottom: 1rem;
@@ -54,8 +37,6 @@
   }
   
   /* Paragraph Text */
-  .about-system p,
-  .about-devs p,
   .about-conditions p {
     font-size: 1.1rem;
     line-height: 1.6;
@@ -82,32 +63,6 @@
     padding-right: 1rem;
   }
 
-  /* Developer Buttons */
-  .developers-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 1rem;
-    padding: 0 1rem;
-    font-size: 1.1rem;
-  }
-  
-  .developer-button {
-    width: 100%;
-    padding: 1rem;
-    font-size: 1.1rem;
-    background-color: rgba(255, 255, 255, 0.15);
-    border: none;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    color: #fff;
-  }
-  
-  .developer-button:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-    transform: translateY(-3px);
-  }
   
   /* Responsive Fixes */
   @media screen and (max-width: 768px) {
@@ -115,9 +70,6 @@
       flex-direction: column;
       align-items: center;
     }
-  
-    .about-system,
-    .about-devs,
     .about-conditions {
       width: 90%;
     }
