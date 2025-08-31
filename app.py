@@ -9,8 +9,10 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import DataLoader, Dataset
 from sklearn.utils import shuffle
+import mysql.connector
 import os
 
+# Flask + Config
 app = Flask(__name__)
 CORS(app)
 
@@ -26,7 +28,16 @@ training_status = {"status": "idle", "epoch": 0, "loss": None}
 model = None
 label_encoder = LabelEncoder()
 
-# Dataset
+# MySQL
+db = mysql.connector.connect(
+    host="127.0.0.1",
+    user="root",         
+    password="Marc2204@", 
+    database="mental_health_db"
+)
+cursor = db.cursor(dictionary=True)
+
+# Dataset + Model
 class EmotionDataset(Dataset):
     def __init__(self, texts, labels):
         self.texts = texts
@@ -36,7 +47,8 @@ class EmotionDataset(Dataset):
         return len(self.texts)
 
     def __getitem__(self, idx):
-        encoding = tokenizer(self.texts[idx], return_tensors='pt', truncation=True, padding='max_length', max_length=128)
+        encoding = tokenizer(self.texts[idx], return_tensors='pt',
+                             truncation=True, padding='max_length', max_length=128)
         input_ids = encoding['input_ids'].squeeze(0)
         attention_mask = encoding['attention_mask'].squeeze(0)
         return {
@@ -45,7 +57,7 @@ class EmotionDataset(Dataset):
             'label': torch.tensor(self.labels[idx], dtype=torch.long)
         }
 
-# Model
+
 class EmotionClassifier(nn.Module):
     def __init__(self, num_labels):
         super(EmotionClassifier, self).__init__()
@@ -66,7 +78,121 @@ class EmotionClassifier(nn.Module):
         loss = F.cross_entropy(logits, labels) if labels is not None else None
         return {"logits": logits, "loss": loss}
 
-# Train endpoint
+
+# Analyze endpoint
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    data = request.get_json()
+    text = data.get("text", "")
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+
+    result = analyze_text(text)
+    
+    # Optional: simple negative detection
+    is_negative = result.get("label") in ["negative", "sad", "angry"]  # adjust as needed
+
+    return jsonify({
+        "label": result.get("label", "neutral"),
+        "score": result.get("score", 0.0),
+        "is_negative": is_negative
+    })
+
+
+# Helper: Load/Analyze
+def load_model():
+    global model
+    if model is None:
+        if os.path.exists(CHECKPOINT_FILE):
+            checkpoint = torch.load(CHECKPOINT_FILE, map_location=device)
+            num_labels = checkpoint.get('num_labels', len(checkpoint['label_encoder_classes']))
+            model = EmotionClassifier(num_labels).to(device)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            label_encoder.classes_ = checkpoint['label_encoder_classes']
+    return model
+
+
+def analyze_text(text):
+    model = load_model()
+    if model is None:
+        return {"label": "neutral"}
+
+    model.eval()
+    with torch.no_grad():
+        inputs = tokenizer(text, return_tensors='pt',
+                           truncation=True, padding='max_length', max_length=128)
+        input_ids = inputs['input_ids'].to(device)
+        attention_mask = inputs['attention_mask'].to(device)
+
+        output = model(input_ids=input_ids, attention_mask=attention_mask)
+        logits = output['logits']
+        probs = F.softmax(logits, dim=-1)
+        top_prob, top_idx = torch.max(probs, dim=1)
+        predicted_label = label_encoder.inverse_transform([top_idx.item()])[0]
+
+    return {"label": predicted_label, "score": round(top_prob.item(), 4)}
+
+# Posts + Comments APIs
+@app.route('/posts/<space>', methods=['GET'])
+def get_posts(space):
+    cursor.execute("SELECT * FROM posts WHERE space = %s ORDER BY created_at DESC", (space,))
+    posts = cursor.fetchall()
+    for post in posts:
+        cursor.execute("SELECT * FROM comments WHERE post_id = %s ORDER BY created_at ASC", (post['id'],))
+        post['comments'] = cursor.fetchall()
+    return jsonify(posts)
+
+
+@app.route('/posts', methods=['POST'])
+def create_post():
+    data = request.get_json()
+    text = data.get("text", "")
+    space = data.get("space", "Community Support")
+
+    result = analyze_text(text)
+    emotion = result.get("label", "neutral")
+
+    cursor.execute(
+        "INSERT INTO posts (space, text, emotion) VALUES (%s, %s, %s)",
+        (space, text, emotion)
+    )
+    db.commit()
+    post_id = cursor.lastrowid
+    return jsonify({"id": post_id, "space": space, "text": text, "emotion": emotion, "comments": []})
+
+
+@app.route('/posts/<int:post_id>/comments', methods=['POST'])
+def add_comment(post_id):
+    data = request.get_json()
+    text = data.get("text", "")
+
+    result = analyze_text(text)
+    emotion = result.get("label", "neutral")
+
+    cursor.execute(
+        "INSERT INTO comments (post_id, text, emotion) VALUES (%s, %s, %s)",
+        (post_id, text, emotion)
+    )
+    db.commit()
+    comment_id = cursor.lastrowid
+    return jsonify({"id": comment_id, "post_id": post_id, "text": text, "emotion": emotion})
+
+
+@app.route('/posts/<int:post_id>', methods=['DELETE'])
+def delete_post(post_id):
+    cursor.execute("DELETE FROM posts WHERE id = %s", (post_id,))
+    db.commit()
+    return jsonify({"message": "Post deleted"})
+
+
+@app.route('/comments/<int:comment_id>', methods=['DELETE'])
+def delete_comment(comment_id):
+    cursor.execute("DELETE FROM comments WHERE id = %s", (comment_id,))
+    db.commit()
+    return jsonify({"message": "Comment deleted"})
+
+
+# Training endpoint
 @app.route('/train', methods=['POST'])
 def train():
     global model, label_encoder, training_status
@@ -116,87 +242,11 @@ def train():
         training_status["status"] = "error"
         return jsonify({"error": str(e)}), 500
 
-# Analyze endpoint
-@app.route('/analyze', methods=['POST'])
-def analyze():
-    global model, label_encoder
 
-    if model is None:
-        if os.path.exists(CHECKPOINT_FILE):
-            checkpoint = torch.load(CHECKPOINT_FILE, map_location=device)
-            num_labels = checkpoint.get('num_labels', len(checkpoint['label_encoder_classes']))
-            model = EmotionClassifier(num_labels).to(device)
-            model.load_state_dict(checkpoint['model_state_dict'])
-            label_encoder.classes_ = checkpoint['label_encoder_classes']
-        else:
-            return jsonify({"error": "Model not trained yet."}), 400
-
-    data = request.get_json()
-    text = data.get("text", "").strip()
-    if not text:
-        return jsonify({"error": "No text provided"}), 400
-
-    model.eval()
-    with torch.no_grad():
-        inputs = tokenizer(text, return_tensors='pt', truncation=True, padding='max_length', max_length=128)
-        input_ids = inputs['input_ids'].to(device)
-        attention_mask = inputs['attention_mask'].to(device)
-
-        output = model(input_ids=input_ids, attention_mask=attention_mask)
-        logits = output['logits']
-        probs = F.softmax(logits, dim=-1)
-        top_prob, top_idx = torch.max(probs, dim=1)
-
-        predicted_label = label_encoder.inverse_transform([top_idx.item()])[0]
-        is_negative = predicted_label.lower() in {"anger", "sadness", "fear", "disgust", "guilt", "shame"} and top_prob.item() > 0.6
-
-        return jsonify({"label": predicted_label, "score": round(top_prob.item(), 4), "is_negative": is_negative})
-
-# Hybrid risk endpoint
-@app.route('/hybrid_risk', methods=['POST'])
-def hybrid_risk():
-    global model, label_encoder
-
-    if model is None:
-        if os.path.exists(CHECKPOINT_FILE):
-            checkpoint = torch.load(CHECKPOINT_FILE, map_location=device)
-            num_labels = checkpoint.get('num_labels', len(checkpoint['label_encoder_classes']))
-            model = EmotionClassifier(num_labels).to(device)
-            model.load_state_dict(checkpoint['model_state_dict'])
-            label_encoder.classes_ = checkpoint['label_encoder_classes']
-        else:
-            return jsonify({"error": "Model not trained yet."}), 400
-
-    data = request.get_json()
-    lr_score = float(data.get("lr_score", 0))  # e.g., normalized survey score
-    text = data.get("text", "").strip()
-
-    if not text:
-        return jsonify({"error": "Text input is required"}), 400
-
-    model.eval()
-    with torch.no_grad():
-        inputs = tokenizer(text, return_tensors='pt', truncation=True, padding='max_length', max_length=128)
-        input_ids = inputs['input_ids'].to(device)
-        attention_mask = inputs['attention_mask'].to(device)
-
-        output = model(input_ids=input_ids, attention_mask=attention_mask, anomaly=True)
-        bert_score = output['anomaly_score'].item()
-
-    final_risk = round((0.7 * lr_score) + (0.3 * bert_score), 4)
-    is_high_risk = final_risk > 0.7
-
-    return jsonify({
-        "lr_score": lr_score,
-        "bert_anomaly_score": round(bert_score, 4),
-        "final_risk": final_risk,
-        "is_high_risk": is_high_risk
-    })
-
-# Training status endpoint
 @app.route('/training_status', methods=['GET'])
 def get_training_status():
     return jsonify(training_status)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

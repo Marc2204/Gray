@@ -43,6 +43,20 @@ const PeerSupport = ({ initialSpace = 'Community Support' }) => {
         return () => unsubscribe();
     }, []);
 
+    // ✅ fetch posts from Flask backend whenever space changes
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                const res = await fetch(`http://localhost:5000/posts/${activeSpace}`);
+                const data = await res.json();
+                setPosts(prev => ({ ...prev, [activeSpace]: data }));
+            } catch (err) {
+                console.error("Failed to fetch posts:", err);
+            }
+        };
+        fetchPosts();
+    }, [activeSpace]);
+
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
@@ -63,6 +77,7 @@ const PeerSupport = ({ initialSpace = 'Community Support' }) => {
         const userName = isAdmin && user ? user.email : 'Anonymous';
 
         try {
+            // first analyze via /analyze
             const response = await fetch('http://localhost:5000/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -75,22 +90,22 @@ const PeerSupport = ({ initialSpace = 'Community Support' }) => {
                 alert("⚠️ Your post expresses strong negative emotions. If you're in crisis, please consider seeking help or contacting a support hotline.");
             }
 
-            const newPost = {
-                id: Date.now(),
-                text: postInput,
-                emotion,
-                userName,
-                comments: [],
-            };
+            // then save to backend /posts
+            const saveRes = await fetch("http://localhost:5000/posts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: postInput, space: activeSpace, userName, emotion }),
+            });
+            const savedPost = await saveRes.json();
 
             setPosts(prev => ({
                 ...prev,
-                [activeSpace]: [newPost, ...prev[activeSpace]],
+                [activeSpace]: [savedPost, ...prev[activeSpace]],
             }));
             setPostInput('');
         } catch (error) {
-            console.error('Failed to analyze post:', error);
-            alert('Error analyzing post.');
+            console.error('Failed to handle post:', error);
+            alert('Error posting.');
         }
     };
 
@@ -162,16 +177,15 @@ const PeerSupport = ({ initialSpace = 'Community Support' }) => {
             );
         }
         if (activeSpace === 'About System') {
-    return (
-        <div className="about-system">
-            <h3>🖥️ About the System</h3>
-            <p>
-               This system is designed to help people in understanding and self-evaluation of their mental well-being using Artificial Intelligence. There are tests for anxiety, depression, general well- being, and personality characteristics. The scoring in different categories is analyzed via a logistic regression model, which further helps in classifying the results as per risk levels. An AI chatbot helps one in guided self-reflection; a peer support is there for enabling safe, anonymous sharing and encouragement. The system is designed with the perspective of user privacy, ethical interactions, and early detection to support overall mental well-being.
-            </p>
-
-        </div>
-    );
-}
+            return (
+                <div className="about-system">
+                    <h3>🖥️ About the System</h3>
+                    <p>
+                        This system is designed to help people in understanding and self-evaluation of their mental well-being using Artificial Intelligence. There are tests for anxiety, depression, general well- being, and personality characteristics. The scoring in different categories is analyzed via a logistic regression model, which further helps in classifying the results as per risk levels. An AI chatbot helps one in guided self-reflection; a peer support is there for enabling safe, anonymous sharing and encouragement. The system is designed with the perspective of user privacy, ethical interactions, and early detection to support overall mental well-being.
+                    </p>
+                </div>
+            );
+        }
 
         return (
             <>
@@ -248,45 +262,51 @@ const PeerSupport = ({ initialSpace = 'Community Support' }) => {
 const PostCard = ({ post, space, posts, setPosts, isAdmin }) => {
     const [comment, setComment] = useState('');
 
+    // ✅ add comment through backend
     const addComment = async () => {
         if (!comment.trim()) return;
-
         try {
-            const response = await fetch('http://localhost:5000/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch(`http://localhost:5000/posts/${post.id}/comments`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text: comment }),
             });
-            const analysis = await response.json();
-            const emotion = analysis.label || 'neutral';
-
-            if (analysis.is_negative) {
-                alert("⚠️ Your comment expresses strong negative emotions. If you're in crisis, please consider seeking help or contacting a support hotline.");
-            }
+            const newComment = await response.json();
 
             const updatedPosts = posts[space].map(p =>
-                p.id === post.id
-                    ? {
-                        ...p,
-                        comments: [...p.comments, { id: Date.now(), text: comment, emotion }],
-                    }
-                    : p
+                p.id === post.id ? { ...p, comments: [...p.comments, newComment] } : p
             );
             setPosts({ ...posts, [space]: updatedPosts });
             setComment('');
         } catch (error) {
-            console.error('Failed to analyze comment:', error);
-            alert('Error analyzing comment.');
+            console.error("Failed to add comment:", error);
         }
     };
 
-    const deleteComment = (commentId) => {
-        const updatedPosts = posts[space].map(p =>
-            p.id === post.id
-                ? { ...p, comments: p.comments.filter(c => c.id !== commentId) }
-                : p
-        );
-        setPosts({ ...posts, [space]: updatedPosts });
+    // ✅ delete post
+    const deletePost = async () => {
+        try {
+            await fetch(`http://localhost:5000/posts/${post.id}`, { method: "DELETE" });
+            setPosts(prev => ({
+                ...prev,
+                [space]: prev[space].filter(p => p.id !== post.id),
+            }));
+        } catch (error) {
+            console.error("Failed to delete post:", error);
+        }
+    };
+
+    // ✅ delete comment
+    const deleteComment = async (commentId) => {
+        try {
+            await fetch(`http://localhost:5000/comments/${commentId}`, { method: "DELETE" });
+            const updatedPosts = posts[space].map(p =>
+                p.id === post.id ? { ...p, comments: p.comments.filter(c => c.id !== commentId) } : p
+            );
+            setPosts({ ...posts, [space]: updatedPosts });
+        } catch (error) {
+            console.error("Failed to delete comment:", error);
+        }
     };
 
     return (
@@ -295,7 +315,7 @@ const PostCard = ({ post, space, posts, setPosts, isAdmin }) => {
                 {isAdmin && post.userName && <span className="poster-name">{post.userName}:</span>}
                 {!isAdmin && 'Anonymous:'} {post.text}
                 <span className="emotion-tag"> ({post.emotion})</span>
-                <button className='delete-button'>Delete</button>
+                <button className='delete-button' onClick={deletePost}>Delete</button>
             </p>
             <div className="comment-area">
                 <input
@@ -307,7 +327,7 @@ const PostCard = ({ post, space, posts, setPosts, isAdmin }) => {
                 <button onClick={addComment}>Comment</button>
             </div>
             <div className="comments">
-                {post.comments.map(c => (
+                {post.comments?.map(c => (
                     <div key={c.id} className="comment">
                         <p className="comment-text">
                             💬 {c.text}
