@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../testDesign/EatingTest.css";
 
 const questions = [
@@ -35,60 +34,52 @@ const calculatePersonality = (scores) => {
 
 const traitDescriptions = {
   Extraversion:
-    "Extraversion reflects how outgoing, energetic, and sociable you are. High scores indicate a preference for social situations, enthusiasm, and assertiveness.",
+    "Extraversion reflects how outgoing, energetic, and sociable you are. High scores indicate enthusiasm and assertiveness.",
   Agreeableness:
-    "Agreeableness indicates how compassionate and cooperative you are toward others. Higher scores reflect empathy, generosity, and kindness.",
+    "Agreeableness indicates compassion and cooperativeness toward others. Higher scores reflect empathy and generosity.",
   Neuroticism:
-    "Neuroticism reflects emotional instability and how prone you are to psychological stress. Higher scores suggest sensitivity and moodiness.",
+    "Neuroticism reflects emotional instability. Higher scores suggest sensitivity and moodiness.",
   Openness:
-    "Openness describes your imagination and insight. High scores show curiosity, creativity, and a preference for variety and new experiences.",
+    "Openness describes imagination and curiosity. High scores show creativity and preference for variety.",
   Conscientiousness:
-    "Conscientiousness is about being organized, dependable, and goal-oriented. Higher scores indicate self-discipline, carefulness, and reliability.",
+    "Conscientiousness is about being organized, dependable, and goal-oriented. Higher scores indicate reliability and discipline.",
 };
 
 const PersonalityTest = () => {
-  const navigate = useNavigate();
   const [answers, setAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState(null);
   const [hybridRisk, setHybridRisk] = useState(null);
 
-  const handleOptionSelect = (questionIndex, selectedOption) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionIndex]: selectedOption,
-    }));
+  const handleOptionSelect = (index, option) => {
+    setAnswers(prev => ({ ...prev, [index]: option }));
   };
 
   const handleSubmit = async () => {
     if (Object.keys(answers).length < questions.length) {
-      alert("Please answer all questions before submitting.");
+      alert("Please answer all questions.");
       return;
     }
 
-    const scoreArray = Object.values(answers).map((ans) => optionValues[ans]);
-    const personalityTraits = calculatePersonality(scoreArray);
-    setResult(personalityTraits);
+    const scores = Object.values(answers).map(ans => optionValues[ans]);
+    const traits = calculatePersonality(scores);
+    setResult(traits);
 
-    // Calculate a single normalized score (example: average of all answers / 5)
-    const totalScore = scoreArray.reduce((a, b) => a + b, 0);
-    const normalizedScore = totalScore / (questions.length * 5); // 0-1 range
+    const normalizedScore = scores.reduce((a, b) => a + b, 0) / (questions.length * 5);
 
-    // Send to Flask hybrid_risk endpoint
     try {
-      const response = await fetch("http://127.0.0.1:5000/hybrid_risk", {
+      const res = await fetch("http://127.0.0.1:5000/hybrid_risk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lr_score: normalizedScore,
-          text: "Personality test responses for BERT analysis"
-        })
+          text: "Personality test responses for BERT analysis",
+        }),
       });
-
-      const data = await response.json();
+      const data = await res.json();
       setHybridRisk(data);
-    } catch (error) {
-      console.error("Error sending to hybrid_risk:", error);
+    } catch (err) {
+      console.error("Error fetching hybrid risk:", err);
     }
 
     setShowResult(true);
@@ -99,15 +90,15 @@ const PersonalityTest = () => {
       {!showResult ? (
         <div className="question-section">
           <h1>Personality Test (BFI-10)</h1>
-          {questions.map((question, index) => (
-            <div key={question.id} className="question-item">
-              <p>{index + 1}. {question.text}</p>
+          {questions.map((q, i) => (
+            <div key={q.id} className="question-item">
+              <p>{i + 1}. {q.text}</p>
               <div className="button-options">
-                {question.options.map((option) => (
+                {q.options.map(option => (
                   <button
                     key={option}
-                    onClick={() => handleOptionSelect(index, option)}
-                    className={`option-button ${answers[index] === option ? "selected" : ""}`}
+                    className={`option-button ${answers[i] === option ? "selected" : ""}`}
+                    onClick={() => handleOptionSelect(i, option)}
                   >
                     {option}
                   </button>
@@ -115,9 +106,7 @@ const PersonalityTest = () => {
               </div>
             </div>
           ))}
-
-          <button onClick={handleSubmit} className="submit-button">SUBMIT</button>
-
+          <button className="submit-button" onClick={handleSubmit}>SUBMIT</button>
           <div className="test-source">
             <h2>Source:</h2>
             <p>
@@ -147,28 +136,13 @@ const PersonalityTest = () => {
 
           {hybridRisk && (
             <div className="hybrid-risk-section">
-              <h3>Hybrid Risk Assessment</h3>
-              <p><strong>Hybrid Score:</strong> {hybridRisk.hybrid_score}</p>
-              <p><strong>Interpretation:</strong> {hybridRisk.interpretation}</p>
+              <h3>Hybrid Risk Analysis</h3>
+              <p><strong>Hybrid Score:</strong> {hybridRisk.final_risk || hybridRisk.hybrid_risk_score}</p>
+              <p><strong>Risk Level:</strong> {hybridRisk.is_high_risk ? "High" : "Low"}</p>
               <p><strong>Logistic Regression Score:</strong> {hybridRisk.lr_score}</p>
-              <p><strong>BERT Score:</strong> {hybridRisk.bert_score}</p>
+              <p><strong>BERT Score:</strong> {hybridRisk.bert_anomaly_score || hybridRisk.bert_score}</p>
             </div>
           )}
-
-          <h3>Your Answers:</h3>
-          <ul>
-            {questions.map((q, i) => (
-              <li key={q.id}>
-                <strong>{i + 1}. {q.text}</strong><br />
-                <span style={{ color: "#0c7db1" }}>Your answer: {answers[i]}</span>
-              </li>
-            ))}
-          </ul>
-
-          <p style={{ marginTop: "3rem", textAlign: "justify" }}>
-            <strong>Please note:</strong> Online screening tools are not diagnostic instruments.
-            You are encouraged to share your results with a physician or healthcare provider.
-          </p>
         </div>
       )}
     </div>

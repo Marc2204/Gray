@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../testDesign/EatingTest.css";
 
 const questions = [
@@ -20,47 +19,22 @@ const optionValues = {
 };
 
 const calculateWellBeing = (score) => {
-  if (score >= 21) {
-    return {
-      result: "Excellent Well-being – Keep up the great work!",
-      description: "You seem to be experiencing a strong sense of well-being. Keep doing what you're doing, and stay mindful of your mental and emotional health.",
-    };
-  } else if (score >= 16) {
-    return {
-      result: "Good Well-being – You're doing well!",
-      description: "You are generally feeling well. Continue with your positive habits and take time for regular self-care.",
-    };
-  } else if (score >= 11) {
-    return {
-      result: "Fair Well-being – Consider taking time for self-care.",
-      description: "You're doing okay, but it might help to prioritize relaxation and enjoyable activities. Pay attention to your mental health and take breaks when needed.",
-    };
-  } else if (score >= 6) {
-    return {
-      result: "Poor Well-being – It's important to focus on your well-being.",
-      description: "You're likely under some stress or emotional fatigue. Make time for rest and self-care, and talk to someone if you're feeling overwhelmed.",
-    };
-  } else {
-    return {
-      result: "Very Poor Well-being – Please consider reaching out for support.",
-      description: "Your score suggests that you may be struggling with your well-being. You're not alone, and it’s okay to seek support from a counselor, therapist, or someone you trust.",
-    };
-  }
+  if (score >= 21) return { result: "Excellent Well-being – Keep up the great work!", description: "You seem to be experiencing a strong sense of well-being. Keep doing what you're doing, and stay mindful of your mental and emotional health." };
+  if (score >= 16) return { result: "Good Well-being – You're doing well!", description: "You are generally feeling well. Continue with your positive habits and take time for regular self-care." };
+  if (score >= 11) return { result: "Fair Well-being – Consider taking time for self-care.", description: "You're doing okay, but it might help to prioritize relaxation and enjoyable activities. Pay attention to your mental health and take breaks when needed." };
+  if (score >= 6) return { result: "Poor Well-being – It's important to focus on your well-being.", description: "You're likely under some stress or emotional fatigue. Make time for rest and self-care, and talk to someone if you're feeling overwhelmed." };
+  return { result: "Very Poor Well-being – Please consider reaching out for support.", description: "Your score suggests that you may be struggling with your well-being. You're not alone, and it’s okay to seek support from a counselor, therapist, or someone you trust." };
 };
 
 const WellTest = () => {
-  const navigate = useNavigate();
   const [answers, setAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState(null);
   const [score, setScore] = useState(0);
   const [hybridRisk, setHybridRisk] = useState(null);
 
-  const handleOptionSelect = (questionIndex, selectedOption) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionIndex]: selectedOption,
-    }));
+  const handleOptionSelect = (index, option) => {
+    setAnswers(prev => ({ ...prev, [index]: option }));
   };
 
   const handleSubmit = async () => {
@@ -69,31 +43,25 @@ const WellTest = () => {
       return;
     }
 
-    const totalScore = Object.values(answers)
-      .map((ans) => optionValues[ans])
-      .reduce((sum, value) => sum + value, 0);
-
-    const wellBeingResult = calculateWellBeing(totalScore);
+    const totalScore = Object.values(answers).map(ans => optionValues[ans]).reduce((a, b) => a + b, 0);
     setScore(totalScore);
-    setResult(wellBeingResult);
+    setResult(calculateWellBeing(totalScore));
     setShowResult(true);
 
-    // Send to Flask hybrid_risk endpoint
+    // Send hybrid risk to Flask
     try {
-      const response = await fetch("http://127.0.0.1:5000/hybrid_risk", {
+      const res = await fetch("http://127.0.0.1:5000/hybrid_risk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lr_score: totalScore / (questions.length * 5), // normalize 0–1
+          lr_score: totalScore / (questions.length * 5),
           text: "WHO-5 Well-being responses submitted by user."
         }),
       });
-
-      const data = await response.json();
-      console.log("Hybrid risk response:", data);
+      const data = await res.json();
       setHybridRisk(data);
-    } catch (error) {
-      console.error("Error sending hybrid risk data:", error);
+    } catch (err) {
+      console.error("Error fetching hybrid risk:", err);
     }
   };
 
@@ -102,15 +70,15 @@ const WellTest = () => {
       {!showResult ? (
         <div className="question-section">
           <h1>Well-Being Test (WHO-5)</h1>
-          {questions.map((question, index) => (
-            <div key={question.id} className="question-item">
-              <p>{index + 1}. {question.text}</p>
+          {questions.map((q, i) => (
+            <div key={q.id} className="question-item">
+              <p>{i + 1}. {q.text}</p>
               <div className="button-options">
-                {question.options.map((option) => (
+                {q.options.map(option => (
                   <button
                     key={option}
-                    onClick={() => handleOptionSelect(index, option)}
-                    className={`option-button ${answers[index] === option ? "selected" : ""}`}
+                    className={`option-button ${answers[i] === option ? "selected" : ""}`}
+                    onClick={() => handleOptionSelect(i, option)}
                   >
                     {option}
                   </button>
@@ -118,22 +86,7 @@ const WellTest = () => {
               </div>
             </div>
           ))}
-          <button onClick={handleSubmit} className="submit-button">SUBMIT</button>
-
-          <div className="test-source">
-            <h2>Source:</h2>
-            <p>
-              The WHO-5 was developed during the 1990s by the late Per Bech of the Psychiatric Centre North Zealand (Copenhagen, Denmark), which hosted a WHO Collaborating Centre for Mental Health. The WHO-5 was derived from other scales and studies by the WHO Regional Office in Europe.
-            </p>
-            <a
-              href="https://cdn.who.int/media/docs/default-source/mental-health/who-5_english-original4da539d6ed4b49389e3afe47cda2326a.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              WHO-5 Source PDF
-            </a>
-            <p><strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider.</p>
-          </div>
+          <button className="submit-button" onClick={handleSubmit}>SUBMIT</button>
         </div>
       ) : (
         <div className="result-section">
@@ -145,24 +98,21 @@ const WellTest = () => {
           {hybridRisk && (
             <div className="hybrid-risk-section">
               <h3>Hybrid Risk Assessment</h3>
-              <p><strong>BERT Score:</strong> {hybridRisk.bert_score.toFixed(3)}</p>
-              <p><strong>Logistic Regression Score:</strong> {hybridRisk.lr_score.toFixed(3)}</p>
-              <p><strong>Hybrid Risk Score:</strong> {hybridRisk.hybrid_risk_score.toFixed(3)}</p>
+              <p><strong>BERT Score:</strong> {hybridRisk.bert_score?.toFixed(3)}</p>
+              <p><strong>Logistic Regression Score:</strong> {hybridRisk.lr_score?.toFixed(3)}</p>
+             
             </div>
           )}
 
           <h3>Your Answers:</h3>
           <ul>
-            {questions.map((question, index) => (
-              <li key={question.id}>
-                <strong>{index + 1}. {question.text}</strong><br />
-                <span style={{ color: "#048bb8" }}>Your answer: {answers[index]}</span>
+            {questions.map((q, i) => (
+              <li key={q.id}>
+                <strong>{i + 1}. {q.text}</strong><br />
+                <span style={{ color: "#048bb8" }}>Your answer: {answers[i]}</span>
               </li>
             ))}
           </ul>
-          <p style={{ marginTop: "3rem", textAlign: "justify" }}>
-            <strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider.
-          </p>
         </div>
       )}
     </div>

@@ -11,11 +11,13 @@ from torch.utils.data import DataLoader, Dataset
 from sklearn.utils import shuffle
 import mysql.connector
 import os
+import numpy as np
 
-# Flask + Config
+# ---------------- Flask + CORS ----------------
 app = Flask(__name__)
 CORS(app)
 
+# ---------------- BERT Model ----------------
 MODEL_NAME = "google-bert/bert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -28,16 +30,16 @@ training_status = {"status": "idle", "epoch": 0, "loss": None}
 model = None
 label_encoder = LabelEncoder()
 
-# MySQL
+# ---------------- MySQL ----------------
 db = mysql.connector.connect(
     host="127.0.0.1",
-    user="root",         
-    password="Marc2204@", 
+    user="root",
+    password="Marc2204@",
     database="mental_health_db"
 )
 cursor = db.cursor(dictionary=True)
 
-# Dataset + Model
+# ---------------- Dataset & Model ----------------
 class EmotionDataset(Dataset):
     def __init__(self, texts, labels):
         self.texts = texts
@@ -56,7 +58,6 @@ class EmotionDataset(Dataset):
             'attention_mask': attention_mask,
             'label': torch.tensor(self.labels[idx], dtype=torch.long)
         }
-
 
 class EmotionClassifier(nn.Module):
     def __init__(self, num_labels):
@@ -78,28 +79,7 @@ class EmotionClassifier(nn.Module):
         loss = F.cross_entropy(logits, labels) if labels is not None else None
         return {"logits": logits, "loss": loss}
 
-
-# Analyze endpoint
-@app.route('/analyze', methods=['POST'])
-def analyze():
-    data = request.get_json()
-    text = data.get("text", "")
-    if not text:
-        return jsonify({"error": "No text provided"}), 400
-
-    result = analyze_text(text)
-    
-    # Optional: simple negative detection
-    is_negative = result.get("label") in ["negative", "sad", "angry"]  # adjust as needed
-
-    return jsonify({
-        "label": result.get("label", "neutral"),
-        "score": result.get("score", 0.0),
-        "is_negative": is_negative
-    })
-
-
-# Helper: Load/Analyze
+# ---------------- Helper Functions ----------------
 def load_model():
     global model
     if model is None:
@@ -111,7 +91,6 @@ def load_model():
             label_encoder.classes_ = checkpoint['label_encoder_classes']
     return model
 
-
 def analyze_text(text):
     model = load_model()
     if model is None:
@@ -119,8 +98,8 @@ def analyze_text(text):
 
     model.eval()
     with torch.no_grad():
-        inputs = tokenizer(text, return_tensors='pt',
-                           truncation=True, padding='max_length', max_length=128)
+        inputs = tokenizer(text, return_tensors='pt', truncation=True,
+                           padding='max_length', max_length=128)
         input_ids = inputs['input_ids'].to(device)
         attention_mask = inputs['attention_mask'].to(device)
 
@@ -132,121 +111,187 @@ def analyze_text(text):
 
     return {"label": predicted_label, "score": round(top_prob.item(), 4)}
 
-# Posts + Comments APIs
+# ---------------- GAD-7 / Anxiety Logistic Regression ----------------
+GAD7_WEIGHTS = np.array([0.5,0.7,0.6,0.4,0.6,0.5,0.8])
+GAD7_INTERCEPT = -1.5
+
+@app.route('/hybrid_risk', methods=['POST'])
+def hybrid_risk():
+    data = request.get_json()
+    lr_score = data.get("lr_score")
+    text = data.get("text","")
+    
+    probability = lr_score
+    anomaly_score = 0.0
+    if text:
+        bert_model = load_model()
+        if bert_model:
+            bert_model.eval()
+            with torch.no_grad():
+                encoding = tokenizer(text, return_tensors='pt', truncation=True, padding='max_length', max_length=128)
+                input_ids = encoding['input_ids'].to(device)
+                attention_mask = encoding['attention_mask'].to(device)
+                anomaly_output = bert_model(input_ids, attention_mask, anomaly=True)
+                anomaly_score = anomaly_output["anomaly_score"].item()
+    
+    hybrid_score = (probability + anomaly_score)/2
+    risk_level = "High" if hybrid_score >= 0.5 else "Low"
+    return jsonify({
+        "lr_score": round(probability,4),
+        "bert_anomaly_score": round(anomaly_score,4),
+        "final_risk": round(hybrid_score,4),
+        "is_high_risk": risk_level=="High"
+    })
+
+# ---------------- PHQ-9 / Depression Logistic Regression ----------------
+PHQ9_WEIGHTS = np.array([0.6,0.8,0.5,0.7,0.4,0.9,0.6,0.5,1.0])
+PHQ9_INTERCEPT = -2.0
+
+@app.route('/phq9_risk', methods=['POST'])
+def phq9_risk():
+    data = request.get_json()
+    answers = data.get("answers")
+    text = data.get("text","")
+    
+    if not answers or len(answers)!=9:
+        return jsonify({"error":"Answers must be a list of 9 numbers"}),400
+    
+    features = np.array(answers)
+    logit = np.dot(features, PHQ9_WEIGHTS) + PHQ9_INTERCEPT
+    probability = 1/(1+np.exp(-logit))
+    risk_level = "High" if probability>=0.5 else "Low"
+    
+    anomaly_score = 0.0
+    if text:
+        bert_model = load_model()
+        if bert_model:
+            bert_model.eval()
+            with torch.no_grad():
+                encoding = tokenizer(text, return_tensors='pt', truncation=True,
+                                     padding='max_length', max_length=128)
+                input_ids = encoding['input_ids'].to(device)
+                attention_mask = encoding['attention_mask'].to(device)
+                anomaly_output = bert_model(input_ids, attention_mask, anomaly=True)
+                anomaly_score = anomaly_output["anomaly_score"].item()
+    
+    hybrid_score = (probability+anomaly_score)/2
+    return jsonify({
+        "lr_score": round(probability,4),
+        "bert_score": round(anomaly_score,4),
+        "hybrid_risk_score": round(hybrid_score,4),
+        "risk_level": risk_level,
+        "is_high_risk": risk_level=="High"
+    })
+
+# ---------------- Posts & Comments ----------------
 @app.route('/posts/<space>', methods=['GET'])
 def get_posts(space):
-    cursor.execute("SELECT * FROM posts WHERE space = %s ORDER BY created_at DESC", (space,))
+    cursor.execute("SELECT * FROM posts WHERE space=%s ORDER BY created_at DESC",(space,))
     posts = cursor.fetchall()
     for post in posts:
-        cursor.execute("SELECT * FROM comments WHERE post_id = %s ORDER BY created_at ASC", (post['id'],))
+        cursor.execute("SELECT * FROM comments WHERE post_id=%s ORDER BY created_at ASC",(post['id'],))
         post['comments'] = cursor.fetchall()
     return jsonify(posts)
-
 
 @app.route('/posts', methods=['POST'])
 def create_post():
     data = request.get_json()
-    text = data.get("text", "")
-    space = data.get("space", "Community Support")
-
-    result = analyze_text(text)
-    emotion = result.get("label", "neutral")
-
-    cursor.execute(
-        "INSERT INTO posts (space, text, emotion) VALUES (%s, %s, %s)",
-        (space, text, emotion)
-    )
+    text = data.get("text","")
+    space = data.get("space","Community Support")
+    emotion = analyze_text(text).get("label","neutral")
+    
+    cursor.execute("INSERT INTO posts (space,text,emotion) VALUES (%s,%s,%s)",(space,text,emotion))
     db.commit()
     post_id = cursor.lastrowid
-    return jsonify({"id": post_id, "space": space, "text": text, "emotion": emotion, "comments": []})
-
+    return jsonify({"id":post_id,"space":space,"text":text,"emotion":emotion,"comments":[]})
 
 @app.route('/posts/<int:post_id>/comments', methods=['POST'])
 def add_comment(post_id):
     data = request.get_json()
-    text = data.get("text", "")
-
-    result = analyze_text(text)
-    emotion = result.get("label", "neutral")
-
-    cursor.execute(
-        "INSERT INTO comments (post_id, text, emotion) VALUES (%s, %s, %s)",
-        (post_id, text, emotion)
-    )
+    text = data.get("text","")
+    emotion = analyze_text(text).get("label","neutral")
+    
+    cursor.execute("INSERT INTO comments (post_id,text,emotion) VALUES (%s,%s,%s)",(post_id,text,emotion))
     db.commit()
     comment_id = cursor.lastrowid
-    return jsonify({"id": comment_id, "post_id": post_id, "text": text, "emotion": emotion})
-
+    return jsonify({"id":comment_id,"post_id":post_id,"text":text,"emotion":emotion})
 
 @app.route('/posts/<int:post_id>', methods=['DELETE'])
 def delete_post(post_id):
-    cursor.execute("DELETE FROM posts WHERE id = %s", (post_id,))
+    cursor.execute("DELETE FROM posts WHERE id=%s",(post_id,))
     db.commit()
-    return jsonify({"message": "Post deleted"})
-
+    return jsonify({"message":"Post deleted"})
 
 @app.route('/comments/<int:comment_id>', methods=['DELETE'])
 def delete_comment(comment_id):
-    cursor.execute("DELETE FROM comments WHERE id = %s", (comment_id,))
+    cursor.execute("DELETE FROM comments WHERE id=%s",(comment_id,))
     db.commit()
-    return jsonify({"message": "Comment deleted"})
+    return jsonify({"message":"Comment deleted"})
 
-
-# Training endpoint
+# ---------------- Training Endpoint ----------------
 @app.route('/train', methods=['POST'])
 def train():
     global model, label_encoder, training_status
-    training_status["status"] = "training"
-
+    training_status["status"]="training"
     try:
         file = request.files['file']
         df = pd.read_csv(file)
         df = shuffle(df)
-
+        
         label_encoder.fit(df['label'])
         labels = label_encoder.transform(df['label'])
         dataset = EmotionDataset(df['text'].tolist(), labels)
         dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
-
+        
         model = EmotionClassifier(len(label_encoder.classes_)).to(device)
         optimizer = AdamW(model.parameters(), lr=2e-5)
-
+        
         for epoch in range(5):
             model.train()
             total_loss = 0
             for batch in dataloader:
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
-                labels = batch['label'].to(device)
-
-                output = model(input_ids, attention_mask, labels)
+                labels_batch = batch['label'].to(device)
+                
+                output = model(input_ids, attention_mask, labels_batch)
                 loss = output['loss']
-
+                
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item()
-
-            training_status.update({"epoch": epoch + 1, "loss": total_loss})
-
+            
+            training_status.update({"epoch":epoch+1,"loss":total_loss})
+        
         torch.save({
-            'model_state_dict': model.state_dict(),
-            'label_encoder_classes': label_encoder.classes_,
-            'num_labels': len(label_encoder.classes_)
+            'model_state_dict':model.state_dict(),
+            'label_encoder_classes':label_encoder.classes_,
+            'num_labels':len(label_encoder.classes_)
         }, CHECKPOINT_FILE)
-
-        training_status["status"] = "completed"
-        return jsonify({"message": "Training complete", "loss": total_loss})
-
+        
+        training_status["status"]="completed"
+        return jsonify({"message":"Training complete","loss":total_loss})
     except Exception as e:
-        training_status["status"] = "error"
-        return jsonify({"error": str(e)}), 500
-
+        training_status["status"]="error"
+        return jsonify({"error":str(e)}),500
 
 @app.route('/training_status', methods=['GET'])
 def get_training_status():
     return jsonify(training_status)
 
+# ---------------- Analyze Text Endpoint ----------------
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    data = request.get_json()
+    text = data.get("text", "").strip()
 
-if __name__ == '__main__':
+    if not text:
+        return jsonify({"error": "Text is required"}), 400
+
+    result = analyze_text(text)
+    return jsonify(result)
+
+# ---------------- Main ----------------
+if __name__=="__main__":
     app.run(debug=True)

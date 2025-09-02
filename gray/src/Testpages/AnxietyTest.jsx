@@ -1,43 +1,15 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import "../testDesign/EatingTest.css";
 import Chatbot from "../pages/Chatbot";
 
 const questions = [
-  {
-    id: 1,
-    text: "Feeling nervous, anxious, or on edge?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
-  },
-  {
-    id: 2,
-    text: "Not being able to stop or control worrying?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
-  },
-  {
-    id: 3,
-    text: "Worrying too much about different things?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
-  },
-  {
-    id: 4,
-    text: "Trouble relaxing?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
-  },
-  {
-    id: 5,
-    text: "Being so restless that it is hard to sit still?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
-  },
-  {
-    id: 6,
-    text: "Becoming easily annoyed or irritable?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
-  },
-  {
-    id: 7,
-    text: "Feeling afraid as if something awful might happen?",
-    options: ["Not at all", "Several days", "More than half the days", "Nearly every day"]
-  }
+  { id: 1, text: "Feeling nervous, anxious, or on edge?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 2, text: "Not being able to stop or control worrying?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 3, text: "Worrying too much about different things?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 4, text: "Trouble relaxing?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 5, text: "Being so restless that it is hard to sit still?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 6, text: "Becoming easily annoyed or irritable?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] },
+  { id: 7, text: "Feeling afraid as if something awful might happen?", options: ["Not at all", "Several days", "More than half the days", "Nearly every day"] }
 ];
 
 const optionValues = {
@@ -45,33 +17,6 @@ const optionValues = {
   "Several days": 1,
   "More than half the days": 2,
   "Nearly every day": 3
-};
-
-const logisticRegression = (score) => {
-  if (score >= 15) {
-    return {
-      result: "Severe Anxiety – Consider professional help.",
-      description:
-        "Your score suggests that you may be experiencing severe anxiety. It is recommended that you seek professional help, such as a therapist or counselor."
-    };
-  } else if (score >= 10) {
-    return {
-      result: "Moderate Anxiety – Keep monitoring.",
-      description:
-        "Your score suggests moderate anxiety. You may be experiencing stress or anxiety that is affecting your ability to relax or concentrate."
-    };
-  } else if (score >= 5) {
-    return {
-      result: "Mild Anxiety – Be mindful of your well-being.",
-      description:
-        "Your score suggests mild anxiety. This level may be temporary and linked to stress or life events."
-    };
-  } else {
-    return {
-      result: "Minimal Anxiety – Keep taking care of yourself!",
-      description: "Your score indicates minimal anxiety, which is great."
-    };
-  }
 };
 
 const AnxietyTest = () => {
@@ -83,56 +28,10 @@ const AnxietyTest = () => {
   const [isChatbotVisible, setIsChatbotVisible] = useState(false);
   const chatbotButtonRef = useRef(null);
 
-  const toggleChatbot = () => {
-    setIsChatbotVisible((prev) => !prev);
-  };
+  const toggleChatbot = () => setIsChatbotVisible(prev => !prev);
 
-  useEffect(() => {
-    const button = chatbotButtonRef.current;
-    if (!button) return;
-
-    let isDragging = false;
-    let offsetX = 0;
-    let offsetY = 0;
-
-    const onMouseDown = (e) => {
-      isDragging = true;
-      offsetX = e.clientX - button.getBoundingClientRect().left;
-      offsetY = e.clientY - button.getBoundingClientRect().top;
-      button.style.transition = "none";
-    };
-
-    const onMouseMove = (e) => {
-      if (isDragging) {
-        button.style.left = `${e.clientX - offsetX}px`;
-        button.style.top = `${e.clientY - offsetY}px`;
-        button.style.bottom = "auto";
-        button.style.right = "auto";
-        button.style.position = "fixed";
-      }
-    };
-
-    const onMouseUp = () => {
-      isDragging = false;
-      button.style.transition = "";
-    };
-
-    button.addEventListener("mousedown", onMouseDown);
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
-
-    return () => {
-      button.removeEventListener("mousedown", onMouseDown);
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-    };
-  }, []);
-
-  const handleOptionSelect = (questionIndex, selectedOption) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionIndex]: selectedOption
-    }));
+  const handleOptionSelect = (index, option) => {
+    setAnswers(prev => ({ ...prev, [index]: option }));
   };
 
   const handleSubmit = async () => {
@@ -141,35 +40,38 @@ const AnxietyTest = () => {
       return;
     }
 
-    const totalScore = Object.values(answers)
-      .map((ans) => optionValues[ans])
-      .reduce((sum, value) => sum + value, 0);
-
-    const anxietyResult = logisticRegression(totalScore);
-    setScore(totalScore);
-    setResult(anxietyResult);
-    setShowResult(true);
+    const features = questions.map((_, i) => optionValues[answers[i]]);
+    setScore(features.reduce((sum, val) => sum + val, 0));
 
     try {
       const response = await fetch("http://127.0.0.1:5000/hybrid_risk", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          lr_score: totalScore / (questions.length * 3), // normalized 0–1
-          text: "User completed the anxiety test" // Replace with actual free text if available
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers: features, text: "User completed the anxiety test" })
       });
 
       const data = await response.json();
       setHybridRisk(data);
-    } catch (error) {
-      console.error("Error sending hybrid risk data:", error);
-    }
 
-    if (anxietyResult.result.startsWith("Severe Anxiety")) {
-      setIsChatbotVisible(true);
+      const prob = data.lr_score;
+      let anxietyResult;
+      if (prob >= 0.75) {
+        anxietyResult = { result: "Severe Anxiety – Consider professional help.", description: "Your score suggests severe anxiety. Seek professional help." };
+      } else if (prob >= 0.5) {
+        anxietyResult = { result: "Moderate Anxiety – Keep monitoring.", description: "Your score suggests moderate anxiety." };
+      } else if (prob >= 0.25) {
+        anxietyResult = { result: "Mild Anxiety – Be mindful of your well-being.", description: "Your score suggests mild anxiety." };
+      } else {
+        anxietyResult = { result: "Minimal Anxiety – Keep taking care of yourself!", description: "Your score indicates minimal anxiety." };
+      }
+
+      setResult(anxietyResult);
+      setShowResult(true);
+      if (anxietyResult.result.startsWith("Severe Anxiety")) setIsChatbotVisible(true);
+
+    } catch (error) {
+      console.error("Error fetching hybrid risk:", error);
+      alert("Failed to compute risk. Please try again.");
     }
   };
 
@@ -179,19 +81,15 @@ const AnxietyTest = () => {
 
       {!showResult ? (
         <div className="question-section">
-          {questions.map((question, index) => (
-            <div key={question.id} className="question-item">
-              <p>
-                {index + 1}. {question.text}
-              </p>
+          {questions.map((q, i) => (
+            <div key={q.id} className="question-item">
+              <p>{i + 1}. {q.text}</p>
               <div className="button-options">
-                {question.options.map((option) => (
+                {q.options.map(option => (
                   <button
                     key={option}
-                    onClick={() => handleOptionSelect(index, option)}
-                    className={`option-button ${
-                      answers[index] === option ? "selected" : ""
-                    }`}
+                    onClick={() => handleOptionSelect(i, option)}
+                    className={`option-button ${answers[i] === option ? "selected" : ""}`}
                   >
                     {option}
                   </button>
@@ -199,11 +97,7 @@ const AnxietyTest = () => {
               </div>
             </div>
           ))}
-
-          <button onClick={handleSubmit} className="submit-button">
-            SUBMIT
-          </button>
-
+          <button onClick={handleSubmit} className="submit-button">SUBMIT</button>
           <div className="test-source">
             <h2>Source:</h2>
             <p>
@@ -228,71 +122,40 @@ const AnxietyTest = () => {
       ) : (
         <div className="result-section">
           <h2>Your Result:</h2>
-          <p>
-            <strong>Score:</strong> {score} / {questions.length * 3}
-          </p>
-          <p>
-            <strong>{result.result}</strong>
-          </p>
+          <p><strong>Score:</strong> {score} / {questions.length * 3}</p>
+          <p><strong>{result.result}</strong></p>
           <p>{result.description}</p>
 
           {hybridRisk && (
-            <div className="hybrid-risk-section" style={{ marginTop: "1.5rem" }}>
+            <div className="hybrid-risk-section">
               <h3>Hybrid Risk Assessment</h3>
-              <p>
-                <strong>Logistic Regression Score:</strong> {hybridRisk.lr_score}
-              </p>
-              <p>
-                <strong>BERT Anomaly Score:</strong> {hybridRisk.bert_anomaly_score}
-              </p>
-              <p>
-                <strong>Final Risk:</strong> {hybridRisk.final_risk}
-              </p>
-              <p>
-                <strong>High Risk:</strong>{" "}
-                {hybridRisk.is_high_risk ? "Yes" : "No"}
-              </p>
+              <p><strong>Logistic Regression Score:</strong> {hybridRisk.lr_score}</p>
+              <p><strong>BERT Anomaly Score:</strong> {hybridRisk.bert_anomaly_score}</p>
+              <p><strong>Final Risk:</strong> {hybridRisk.final_risk}</p>
+              <p><strong>High Risk:</strong> {hybridRisk.is_high_risk ? "Yes" : "No"}</p>
             </div>
           )}
 
           <h3>Your Answers:</h3>
           <ul>
-            {questions.map((question, index) => (
-              <li key={question.id}>
-                <strong>
-                  {index + 1}. {question.text}
-                </strong>
+            {questions.map((q, i) => (
+              <li key={q.id}>
+                <strong>{i + 1}. {q.text}</strong>
                 <br />
-                <span style={{ color: "#048bb8" }}>
-                  Your answer: {answers[index]}
-                </span>
+                <span style={{ color: "#048bb8" }}>Your answer: {answers[i]}</span>
               </li>
             ))}
           </ul>
-
-          <p style={{ marginTop: "2rem" }}>
-            <strong>Note:</strong> Online screening tools are not diagnostic
-            instruments. Share your results with a physician or healthcare
-            provider.
-          </p>
         </div>
       )}
 
       {showResult && (
-        <button
-          onClick={toggleChatbot}
-          ref={chatbotButtonRef}
-          className="footer-button"
-        >
+        <button onClick={toggleChatbot} ref={chatbotButtonRef} className="footer-button">
           {isChatbotVisible ? "Hide Chatbot" : "Open Chatbot"}
         </button>
       )}
 
-      {isChatbotVisible && (
-        <div className="chatbot-wrapper">
-          <Chatbot severeAlert={result?.result.startsWith("Severe Anxiety")} />
-        </div>
-      )}
+      {isChatbotVisible && <div className="chatbot-wrapper"><Chatbot severeAlert={result?.result.startsWith("Severe Anxiety")} /></div>}
     </div>
   );
 };
