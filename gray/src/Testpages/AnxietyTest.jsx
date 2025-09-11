@@ -40,34 +40,57 @@ const AnxietyTest = () => {
       return;
     }
 
+    // Convert answers to numeric features
     const features = questions.map((_, i) => optionValues[answers[i]]);
-    setScore(features.reduce((sum, val) => sum + val, 0));
+    const totalScore = features.reduce((sum, val) => sum + val, 0);
+    setScore(totalScore);
 
     try {
       const response = await fetch("http://127.0.0.1:5000/hybrid_risk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers: features, text: "User completed the anxiety test" })
+        body: JSON.stringify({
+          user_name: "Anonymous", // can replace with actual logged-in user
+          answers: features,
+          text: "User completed the anxiety test"
+        })
       });
 
       const data = await response.json();
       setHybridRisk(data);
 
+      // Interpret probability from LR
       const prob = data.lr_score;
       let anxietyResult;
       if (prob >= 0.75) {
-        anxietyResult = { result: "Severe Anxiety – Consider professional help.", description: "Your score suggests severe anxiety. Seek professional help." };
+        anxietyResult = {
+          result: "Severe Anxiety – Consider professional help.",
+          description: "Your score suggests severe anxiety. Please consult a professional."
+        };
       } else if (prob >= 0.5) {
-        anxietyResult = { result: "Moderate Anxiety – Keep monitoring.", description: "Your score suggests moderate anxiety." };
+        anxietyResult = {
+          result: "Moderate Anxiety – Keep monitoring.",
+          description: "Your score suggests moderate anxiety."
+        };
       } else if (prob >= 0.25) {
-        anxietyResult = { result: "Mild Anxiety – Be mindful of your well-being.", description: "Your score suggests mild anxiety." };
+        anxietyResult = {
+          result: "Mild Anxiety – Be mindful of your well-being.",
+          description: "Your score suggests mild anxiety."
+        };
       } else {
-        anxietyResult = { result: "Minimal Anxiety – Keep taking care of yourself!", description: "Your score indicates minimal anxiety." };
+        anxietyResult = {
+          result: "Minimal Anxiety – Keep taking care of yourself!",
+          description: "Your score indicates minimal anxiety."
+        };
       }
 
       setResult(anxietyResult);
       setShowResult(true);
-      if (anxietyResult.result.startsWith("Severe Anxiety")) setIsChatbotVisible(true);
+
+      // Auto-open chatbot if severe anxiety
+      if (anxietyResult.result.startsWith("Severe Anxiety")) {
+        setIsChatbotVisible(true);
+      }
 
     } catch (error) {
       console.error("Error fetching hybrid risk:", error);
@@ -101,21 +124,20 @@ const AnxietyTest = () => {
           <div className="test-source">
             <h2>Source:</h2>
             <p>
-              Developed by : Kroenke K, Spitzer RL, Williams JB. The PHQ-9:
-              Validity of a brief depression severity measure. Journal of General
-              Internal Medicine. 2001;16(9):606-613.
+              Developed by : Spitzer RL, Kroenke K, Williams JB, Löwe B. 
+              A brief measure for assessing generalized anxiety disorder: the GAD-7. 
+              Arch Intern Med. 2006;166(10):1092-1097.
             </p>
             <a
-              href="https://www2.gov.bc.ca/assets/gov/health/practitioner-pro/bc-guidelines/depression_patient_health_questionnaire.pdf?fbclid=IwY2xjawMacT9leHRuA2FlbQIxMABicmlkETFVcVhYUmlucm9DelMxR0M2AR783ZyYa5Ux0q8tOlBbQTxtFUkiMBB18cuzeJ2GLsdhihkfjSCLqyICSt6S6g_aem_ENDrl0SsoTh_OQ-ePRgO7w"
+              href="https://www.mdcalc.com/calc/1725/gad-7-anxiety-scale"
               target="_blank"
               rel="noopener noreferrer"
             >
-              https://www2.gov.bc.ca/assets/gov/health/practitioner-pro/bc-guidelines/depression_patient_health_questionnaire.pdf
+              https://www.mdcalc.com/calc/1725/gad-7-anxiety-scale
             </a>
             <p>
-              <strong>Please note:</strong> Online screening tools are not
-              diagnostic instruments. You are encouraged to share your results
-              with a physician or healthcare provider.
+              <strong>Please note:</strong> Online screening tools are not diagnostic instruments. 
+              Share your results with a healthcare provider for proper evaluation.
             </p>
           </div>
         </div>
@@ -155,7 +177,11 @@ const AnxietyTest = () => {
         </button>
       )}
 
-      {isChatbotVisible && <div className="chatbot-wrapper"><Chatbot severeAlert={result?.result.startsWith("Severe Anxiety")} /></div>}
+      {isChatbotVisible && (
+        <div className="chatbot-wrapper">
+          <Chatbot severeAlert={result?.result.startsWith("Severe Anxiety")} />
+        </div>
+      )}
     </div>
   );
 };

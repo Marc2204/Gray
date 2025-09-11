@@ -12,6 +12,7 @@ from sklearn.utils import shuffle
 import mysql.connector
 import os
 import numpy as np
+import json
 
 # ---------------- Flask + CORS ----------------
 app = Flask(__name__)
@@ -118,10 +119,17 @@ GAD7_INTERCEPT = -1.5
 @app.route('/hybrid_risk', methods=['POST'])
 def hybrid_risk():
     data = request.get_json()
-    lr_score = data.get("lr_score")
+    user_name = data.get("user_name", "Anonymous")
+    answers = data.get("answers", [])
     text = data.get("text","")
     
-    probability = lr_score
+    # logistic regression (GAD-7)
+    probability = data.get("lr_score")
+    if not probability and answers:
+        features = np.array(answers)
+        logit = np.dot(features, GAD7_WEIGHTS) + GAD7_INTERCEPT
+        probability = 1/(1+np.exp(-logit))
+
     anomaly_score = 0.0
     if text:
         bert_model = load_model()
@@ -136,6 +144,24 @@ def hybrid_risk():
     
     hybrid_score = (probability + anomaly_score)/2
     risk_level = "High" if hybrid_score >= 0.5 else "Low"
+
+    # save to DB
+    cursor.execute("""
+        INSERT INTO anxiety_results (user_name, score, result_text, description, lr_score, bert_anomaly_score, final_risk, is_high_risk, answers_json)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    """, (
+        user_name,
+        int(sum(answers)) if answers else 0,
+        risk_level,
+        "Hybrid GAD-7 + BERT analysis",
+        round(probability,4),
+        round(anomaly_score,4),
+        risk_level,
+        risk_level=="High",
+        json.dumps(answers)
+    ))
+    db.commit()
+
     return jsonify({
         "lr_score": round(probability,4),
         "bert_anomaly_score": round(anomaly_score,4),
@@ -150,6 +176,7 @@ PHQ9_INTERCEPT = -2.0
 @app.route('/phq9_risk', methods=['POST'])
 def phq9_risk():
     data = request.get_json()
+    user_name = data.get("user_name","Anonymous")
     answers = data.get("answers")
     text = data.get("text","")
     
@@ -175,6 +202,30 @@ def phq9_risk():
                 anomaly_score = anomaly_output["anomaly_score"].item()
     
     hybrid_score = (probability+anomaly_score)/2
+
+    # save to DB
+    cursor.execute("""
+    INSERT INTO depression_results (
+        user_name, score, result_text, description, 
+        lr_score, bert_anomaly_score, hybrid_risk_score, 
+        risk_level, is_high_risk, answers_json
+    )
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+""", (
+    user_name,
+    int(sum(answers)),
+    risk_level,
+    "PHQ-9 Depression + BERT analysis",
+    round(probability,4),
+    round(anomaly_score,4),
+    round(hybrid_score,4),   # ✅ Corrected: insert hybrid risk score
+    risk_level,
+    risk_level=="High",
+    json.dumps(answers)
+))
+
+    db.commit()
+
     return jsonify({
         "lr_score": round(probability,4),
         "bert_score": round(anomaly_score,4),
