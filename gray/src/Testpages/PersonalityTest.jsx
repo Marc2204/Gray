@@ -24,25 +24,20 @@ const optionValues = {
 
 const calculatePersonality = (scores) => {
   return {
-    Extraversion: scores[0] + scores[2] + scores[9],
-    Agreeableness: scores[4] + (6 - scores[3]),
-    Neuroticism: scores[6] + scores[7],
-    Openness: scores[8],
-    Conscientiousness: scores[5] + (6 - scores[1]),
+    Extraversion: scores[0] + scores[5],
+    Agreeableness: scores[1] + (6 - scores[6]),
+    Conscientiousness: scores[7] + (6 - scores[2]),
+    Neuroticism: scores[8] + (6 - scores[3]),
+    Openness: scores[9] + (6 - scores[4]),
   };
 };
 
 const traitDescriptions = {
-  Extraversion:
-    "Extraversion reflects how outgoing, energetic, and sociable you are. High scores indicate enthusiasm and assertiveness.",
-  Agreeableness:
-    "Agreeableness indicates compassion and cooperativeness toward others. Higher scores reflect empathy and generosity.",
-  Neuroticism:
-    "Neuroticism reflects emotional instability. Higher scores suggest sensitivity and moodiness.",
-  Openness:
-    "Openness describes imagination and curiosity. High scores show creativity and preference for variety.",
-  Conscientiousness:
-    "Conscientiousness is about being organized, dependable, and goal-oriented. Higher scores indicate reliability and discipline.",
+  Extraversion: "Extraversion reflects how outgoing, energetic, and sociable you are. High scores indicate enthusiasm and assertiveness.",
+  Agreeableness: "Agreeableness indicates compassion and cooperativeness toward others. Higher scores reflect empathy and generosity.",
+  Neuroticism: "Neuroticism reflects emotional instability. Higher scores suggest sensitivity and moodiness.",
+  Openness: "Openness describes imagination and curiosity. High scores show creativity and preference for variety.",
+  Conscientiousness: "Conscientiousness is about being organized, dependable, and goal-oriented. Higher scores indicate reliability and discipline.",
 };
 
 const PersonalityTest = () => {
@@ -68,14 +63,18 @@ const PersonalityTest = () => {
     const normalizedScore = scores.reduce((a, b) => a + b, 0) / (questions.length * 5);
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/hybrid_risk", {
+      const res = await fetch("http://127.0.0.1:5000/bfi10_risk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_name: "Test User",
+          answers: answers,
+          traits: traits,
           lr_score: normalizedScore,
-          text: "Personality test responses for BERT analysis",
+          text: "I took a personality test today.", // 👈 Example text for BERT anomaly
         }),
       });
+
       const data = await res.json();
       setHybridRisk(data);
     } catch (err) {
@@ -109,17 +108,11 @@ const PersonalityTest = () => {
           <button className="submit-button" onClick={handleSubmit}>SUBMIT</button>
           <div className="test-source">
             <h2>Source:</h2>
-            <p>
-              The BFI-10 was developed simultaneously in several samples in both English and German. 
-              It retains significant levels of reliability and validity compared to the full BFI-44.
-            </p>
-            <a
-              href="https://homepages.se.edu/cvonbergen/files/2013/01/Measuring-Personality-in-One-Minute-or-Less_A-10-Item-Short-Version-of-the-Big-Five-Inventory-in-English-and-German.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Link to full paper
-            </a>
+          <p>
+            The BFI-10 was developed simultaneously in several samples in both English and German.It retains significant levels of reliability and validity compared to the full BFI-44.
+          </p>
+            <a href="https://homepages.se.edu/cvonbergen/files/2013/01/Measuring-Personality-in-One-Minute-or-Less_A-10-Item-Short-Version-of-the-Big-Five-Inventory-in-English-and-German.pdf" target="_blank"
+            rel="noopener noreferrer">Link to full paper</a>
           </div>
         </div>
       ) : (
@@ -137,10 +130,10 @@ const PersonalityTest = () => {
           {hybridRisk && (
             <div className="hybrid-risk-section">
               <h3>Hybrid Risk Analysis</h3>
-              <p><strong>Hybrid Score:</strong> {hybridRisk.final_risk || hybridRisk.hybrid_risk_score}</p>
-              <p><strong>Risk Level:</strong> {hybridRisk.is_high_risk ? "High" : "Low"}</p>
               <p><strong>Logistic Regression Score:</strong> {hybridRisk.lr_score}</p>
-              <p><strong>BERT Score:</strong> {hybridRisk.bert_anomaly_score || hybridRisk.bert_score}</p>
+              <p><strong>BERT Anomaly Score:</strong> {hybridRisk.bert_anomaly_score}</p>
+              <p><strong>Hybrid Score:</strong> {hybridRisk.hybrid_score}</p>
+              <p><strong>Risk Level:</strong> {hybridRisk.risk_level}</p>
             </div>
           )}
         </div>

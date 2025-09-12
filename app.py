@@ -36,7 +36,7 @@ db = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
     password="Marc2204@",
-    database="mental_health_db"
+    database="mental_health"
 )
 cursor = db.cursor(dictionary=True)
 
@@ -116,8 +116,8 @@ def analyze_text(text):
 GAD7_WEIGHTS = np.array([0.5,0.7,0.6,0.4,0.6,0.5,0.8])
 GAD7_INTERCEPT = -1.5
 
-@app.route('/hybrid_risk', methods=['POST'])
-def hybrid_risk():
+@app.route('/gad7_risk', methods=['POST'])
+def gad7_risk():
     data = request.get_json()
     user_name = data.get("user_name", "Anonymous")
     answers = data.get("answers", [])
@@ -232,6 +232,153 @@ def phq9_risk():
         "hybrid_risk_score": round(hybrid_score,4),
         "risk_level": risk_level,
         "is_high_risk": risk_level=="High"
+    })
+
+
+# ---------------- Personality Test (BFI-10) ----------------
+@app.route('/bfi10_risk', methods=['POST'])
+def bfi10_risk():
+    data = request.get_json()
+    user_name = data.get("user_name", "Anonymous")
+    answers = data.get("answers", [])
+    traits = data.get("traits", {})
+    lr_score = data.get("lr_score")
+    text = data.get("text", "")
+
+    # Safety checks for traits
+    extraversion = traits.get("Extraversion", 0)
+    agreeableness = traits.get("Agreeableness", 0)
+    neuroticism = traits.get("Neuroticism", 0)
+    openness = traits.get("Openness", 0)
+    conscientiousness = traits.get("Conscientiousness", 0)
+
+    # ---- BERT anomaly score ----
+    bert_anomaly_score = 0.0
+    bert_model = load_model()
+    if text and bert_model:
+        bert_model.eval()
+        with torch.no_grad():
+            encoding = tokenizer(
+                text,
+                return_tensors="pt",
+                truncation=True,
+                padding="max_length",
+                max_length=128
+            )
+            input_ids = encoding["input_ids"].to(device)
+            attention_mask = encoding["attention_mask"].to(device)
+            anomaly_output = bert_model(input_ids, attention_mask, anomaly=True)
+            bert_anomaly_score = anomaly_output["anomaly_score"].item()
+
+    # ---- Hybrid score ----
+    if lr_score is None:
+        lr_score = 0.0
+    hybrid_score = (lr_score + bert_anomaly_score) / 2
+    risk_level = "High" if hybrid_score >= 0.5 else "Low"
+    is_high_risk = risk_level == "High"
+
+    # ---- Save to DB ----
+    cursor.execute("""
+        INSERT INTO personality_results (
+            user_name, extraversion, agreeableness, neuroticism, openness, conscientiousness,
+            hybrid_score, risk_level, lr_score, bert_score, is_high_risk, answers_json
+        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    """, (
+        user_name,
+        extraversion,
+        agreeableness,
+        neuroticism,
+        openness,
+        conscientiousness,
+        round(hybrid_score, 4),
+        risk_level,
+        round(lr_score, 4),
+        round(bert_anomaly_score, 4),
+        is_high_risk,
+        json.dumps(answers)
+    ))
+    db.commit()
+
+    # ---- Return JSON ----
+    return jsonify({
+        "extraversion": extraversion,
+        "agreeableness": agreeableness,
+        "neuroticism": neuroticism,
+        "openness": openness,
+        "conscientiousness": conscientiousness,
+        "lr_score": round(lr_score, 4),
+        "bert_anomaly_score": round(bert_anomaly_score, 4),
+        "hybrid_score": round(hybrid_score, 4),
+        "risk_level": risk_level,
+        "is_high_risk": is_high_risk
+    })
+
+# ---------------- WHO-5 Well-Being Test ----------------
+WHO5_WEIGHTS = np.array([0.6, 0.7, 0.5, 0.8, 0.6])  # tune these
+WHO5_INTERCEPT = -1.2
+
+@app.route('/who5_risk', methods=['POST'])
+def who5_risk():
+    data = request.get_json()
+    user_name = data.get("user_name", "Anonymous")
+    answers = data.get("answers", [])
+    score = data.get("score", 0)
+    result_text = data.get("result_text", "")
+    description = data.get("description", "")
+
+    # logistic regression
+    answers_list = list(answers.values()) if isinstance(answers, dict) else answers
+    features = np.array([int(a) if isinstance(a, (int, float)) else 0 for a in answers_list])
+    logit = np.dot(features, WHO5_WEIGHTS) + WHO5_INTERCEPT
+    lr_score = 1 / (1 + np.exp(-logit))
+
+    # BERT anomaly score
+    bert_score = 0.0
+    text = data.get("text", " ".join(map(str, answers_list)))
+    bert_model = load_model()
+    if text and bert_model:
+        bert_model.eval()
+        with torch.no_grad():
+            encoding = tokenizer(text, return_tensors="pt", truncation=True,
+                                 padding="max_length", max_length=128)
+            input_ids = encoding["input_ids"].to(device)
+            attention_mask = encoding["attention_mask"].to(device)
+            anomaly_output = bert_model(input_ids, attention_mask, anomaly=True)
+            bert_score = anomaly_output["anomaly_score"].item()
+
+    # hybrid score
+    hybrid_score = (lr_score + bert_score) / 2
+    risk_level = "High" if hybrid_score >= 0.5 else "Low"
+    is_high_risk = risk_level == "High"
+
+    # save in DB
+    cursor.execute("""
+        INSERT INTO wellbeing_results (
+            user_name, score, result_text, description,
+            lr_score, bert_score, hybrid_score,
+            risk_level, is_high_risk, answers_json
+        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    """, (
+        user_name,
+        score,
+        result_text,
+        description,
+        round(lr_score, 4),
+        round(bert_score, 4),
+        round(hybrid_score, 4),
+        risk_level,
+        is_high_risk,
+        json.dumps(answers)
+    ))
+    db.commit()
+
+    return jsonify({
+        "score": score,
+        "lr_score": round(lr_score, 4),
+        "bert_score": round(bert_score, 4),
+        "hybrid_score": round(hybrid_score, 4),
+        "risk_level": risk_level,
+        "is_high_risk": is_high_risk
     })
 
 # ---------------- Posts & Comments ----------------

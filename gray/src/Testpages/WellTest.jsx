@@ -43,21 +43,32 @@ const WellTest = () => {
       return;
     }
 
-    const totalScore = Object.values(answers).map(ans => optionValues[ans]).reduce((a, b) => a + b, 0);
+    const totalScore = Object.values(answers)
+      .map(ans => optionValues[ans])
+      .reduce((a, b) => a + b, 0);
+
+    const testResult = calculateWellBeing(totalScore);
+
     setScore(totalScore);
-    setResult(calculateWellBeing(totalScore));
+    setResult(testResult);
     setShowResult(true);
 
-    // Send hybrid risk to Flask
+    // Send data to Flask API
     try {
-      const res = await fetch("http://127.0.0.1:5000/hybrid_risk", {
+      const res = await fetch("http://127.0.0.1:5000/who5_risk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_name: "Anonymous", // replace with logged-in user later
+          answers: answers,
+          score: totalScore,
+          result_text: testResult.result,
+          description: testResult.description,
           lr_score: totalScore / (questions.length * 5),
-          text: "WHO-5 Well-being responses submitted by user."
+          bert_score: 0.0 // placeholder until BERT is added
         }),
       });
+
       const data = await res.json();
       setHybridRisk(data);
     } catch (err) {
@@ -98,9 +109,10 @@ const WellTest = () => {
           {hybridRisk && (
             <div className="hybrid-risk-section">
               <h3>Hybrid Risk Assessment</h3>
-              <p><strong>BERT Score:</strong> {hybridRisk.bert_score?.toFixed(3)}</p>
-              <p><strong>Logistic Regression Score:</strong> {hybridRisk.lr_score?.toFixed(3)}</p>
-             
+              <p><strong>BERT Score:</strong> {hybridRisk.bert_score ?? "N/A"}</p>
+              <p><strong>Logistic Regression Score:</strong> {hybridRisk.lr_score ?? "N/A"}</p>
+              <p><strong>Hybrid Score:</strong> {hybridRisk.hybrid_score}</p>
+              <p><strong>Risk Level:</strong> {hybridRisk.risk_level}</p>
             </div>
           )}
 
