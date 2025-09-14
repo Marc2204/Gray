@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS personality_results (
 CREATE TABLE IF NOT EXISTS wellbeing_results (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_name VARCHAR(100) NULL,           
-    score INT NOT NULL,                    -
+    score INT NOT NULL,                
     result_text VARCHAR(255) NOT NULL,     
     description TEXT,                      
     lr_score DECIMAL(5,4) NULL,            

@@ -112,7 +112,7 @@ const PersonalityTest = () => {
             The BFI-10 was developed simultaneously in several samples in both English and German.It retains significant levels of reliability and validity compared to the full BFI-44.
           </p>
             <a href="https://homepages.se.edu/cvonbergen/files/2013/01/Measuring-Personality-in-One-Minute-or-Less_A-10-Item-Short-Version-of-the-Big-Five-Inventory-in-English-and-German.pdf" target="_blank"
-            rel="noopener noreferrer">Link to full paper</a>
+            rel="noopener noreferrer">https://homepages.se.edu/cvonbergen/files/2013/01/Measuring-Personality-in-One-Minute-or-Less_A-10-Item-Short-Version-of-the-Big-Five-Inventory-in-English-and-German.pdf</a>
           </div>
         </div>
       ) : (

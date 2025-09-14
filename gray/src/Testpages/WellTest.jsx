@@ -98,6 +98,28 @@ const WellTest = () => {
             </div>
           ))}
           <button className="submit-button" onClick={handleSubmit}>SUBMIT</button>
+
+           <div className="test-source">
+            <h2>Source:</h2>
+            <p>
+            The WHO-5 was developed during the 1990s by the late Per Bech of the Psychiatric
+Centre North Zealand (Copenhagen, Denmark), which hosted a WHO Collaborating
+Centre for Mental Health. The WHO-5 was derived from other scales and studies by the
+WHO Regional Office in Europe
+
+            </p>
+
+            <a
+              href="https://cdn.who.int/media/docs/default-source/mental-health/who-5_english-original4da539d6ed4b49389e3afe47cda2326a.pdf?sfvrsn=ed43f352_11&download#:~:text=The%20WHO%2D5%20was%20developed,Europe%20%5B1%5D%5B2%5D."
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              https://cdn.who.int/media/docs/default-source/mental-health/who-5_english-original4da539d6ed4b49389e3afe47cda2326a.pdf?sfvrsn=ed43f352_11&download#:~:text=The%20WHO%2D5%20was%20developed,Europe%20%5B1%5D%5B2%5D.
+            </a>
+
+            <p><strong>Please note:</strong> Online screening tools are not diagnostic instruments. You are encouraged to share your results with a physician or healthcare provider. Mental Health Assessment and the researchers disclaim any liability, loss, or risk incurred as a consequence, directly or indirectly, from the use and application of these screens.</p>
+          </div>
+
         </div>
       ) : (
         <div className="result-section">
