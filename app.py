@@ -16,7 +16,7 @@ import json
 
 # ---------------- Flask + CORS ----------------
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://gray-filt.vercel.app"])
 
 # ---------------- BERT Model ----------------
 MODEL_NAME = "google-bert/bert-base-uncased"
