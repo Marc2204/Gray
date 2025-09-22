@@ -397,8 +397,8 @@ def train():
     global model, label_encoder, training_status
     training_status["status"]="training"
     try:
-        file = request.files['file']
-        df = pd.read_csv(file)
+    
+        df = pd.read_csv("emotion_dataset.csv")
         df = shuffle(df)
 
         label_encoder.fit(df['label'])
