@@ -33,10 +33,10 @@ label_encoder = LabelEncoder()
 
 # ---------------- MySQL ----------------
 db = mysql.connector.connect(
-    host="127.0.0.1",
-    user="root",
-    password="",
-    database="mental_health"
+    host=os.getenv("DB_HOST", "127.0.0.1"),
+    user=os.getenv("DB_USER", "root"),
+    password=os.getenv("DB_PASSWORD", "Marc2204@"),
+    database=os.getenv("DB_NAME", "mental_health")
 )
 cursor = db.cursor(dictionary=True)
 
@@ -112,7 +112,7 @@ def analyze_text(text):
 
     return {"label": predicted_label, "score": round(top_prob.item(), 4)}
 
-# ---------------- GAD-7 / Anxiety Logistic Regression ----------------
+# ---------------- GAD-7 / Anxiety ----------------
 GAD7_WEIGHTS = np.array([0.5,0.7,0.6,0.4,0.6,0.5,0.8])
 GAD7_INTERCEPT = -1.5
 
@@ -122,8 +122,7 @@ def gad7_risk():
     user_name = data.get("user_name", "Anonymous")
     answers = data.get("answers", [])
     text = data.get("text","")
-    
-    # logistic regression (GAD-7)
+
     probability = data.get("lr_score")
     if not probability and answers:
         features = np.array(answers)
@@ -141,11 +140,10 @@ def gad7_risk():
                 attention_mask = encoding['attention_mask'].to(device)
                 anomaly_output = bert_model(input_ids, attention_mask, anomaly=True)
                 anomaly_score = anomaly_output["anomaly_score"].item()
-    
+
     hybrid_score = (probability + anomaly_score)/2
     risk_level = "High" if hybrid_score >= 0.5 else "Low"
 
-    # save to DB
     cursor.execute("""
         INSERT INTO anxiety_results (user_name, score, result_text, description, lr_score, bert_anomaly_score, final_risk, is_high_risk, answers_json)
         VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
@@ -169,7 +167,7 @@ def gad7_risk():
         "is_high_risk": risk_level=="High"
     })
 
-# ---------------- PHQ-9 / Depression Logistic Regression ----------------
+# ---------------- PHQ-9 / Depression ----------------
 PHQ9_WEIGHTS = np.array([0.6,0.8,0.5,0.7,0.4,0.9,0.6,0.5,1.0])
 PHQ9_INTERCEPT = -2.0
 
@@ -179,15 +177,15 @@ def phq9_risk():
     user_name = data.get("user_name","Anonymous")
     answers = data.get("answers")
     text = data.get("text","")
-    
+
     if not answers or len(answers)!=9:
         return jsonify({"error":"Answers must be a list of 9 numbers"}),400
-    
+
     features = np.array(answers)
     logit = np.dot(features, PHQ9_WEIGHTS) + PHQ9_INTERCEPT
     probability = 1/(1+np.exp(-logit))
     risk_level = "High" if probability>=0.5 else "Low"
-    
+
     anomaly_score = 0.0
     if text:
         bert_model = load_model()
@@ -200,10 +198,9 @@ def phq9_risk():
                 attention_mask = encoding['attention_mask'].to(device)
                 anomaly_output = bert_model(input_ids, attention_mask, anomaly=True)
                 anomaly_score = anomaly_output["anomaly_score"].item()
-    
+
     hybrid_score = (probability+anomaly_score)/2
 
-    # save to DB
     cursor.execute("""
     INSERT INTO depression_results (
         user_name, score, result_text, description, 
@@ -218,7 +215,7 @@ def phq9_risk():
     "PHQ-9 Depression + BERT analysis",
     round(probability,4),
     round(anomaly_score,4),
-    round(hybrid_score,4),   # ✅ Corrected: insert hybrid risk score
+    round(hybrid_score,4),
     risk_level,
     risk_level=="High",
     json.dumps(answers)
@@ -234,8 +231,7 @@ def phq9_risk():
         "is_high_risk": risk_level=="High"
     })
 
-
-# ---------------- Personality Test (BFI-10) ----------------
+# ---------------- Personality Test ----------------
 @app.route('/bfi10_risk', methods=['POST'])
 def bfi10_risk():
     data = request.get_json()
@@ -245,61 +241,41 @@ def bfi10_risk():
     lr_score = data.get("lr_score")
     text = data.get("text", "")
 
-    # Safety checks for traits
     extraversion = traits.get("Extraversion", 0)
     agreeableness = traits.get("Agreeableness", 0)
     neuroticism = traits.get("Neuroticism", 0)
     openness = traits.get("Openness", 0)
     conscientiousness = traits.get("Conscientiousness", 0)
 
-    # ---- BERT anomaly score ----
     bert_anomaly_score = 0.0
     bert_model = load_model()
     if text and bert_model:
         bert_model.eval()
         with torch.no_grad():
-            encoding = tokenizer(
-                text,
-                return_tensors="pt",
-                truncation=True,
-                padding="max_length",
-                max_length=128
-            )
+            encoding = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=128)
             input_ids = encoding["input_ids"].to(device)
             attention_mask = encoding["attention_mask"].to(device)
             anomaly_output = bert_model(input_ids, attention_mask, anomaly=True)
             bert_anomaly_score = anomaly_output["anomaly_score"].item()
 
-    # ---- Hybrid score ----
     if lr_score is None:
         lr_score = 0.0
     hybrid_score = (lr_score + bert_anomaly_score) / 2
     risk_level = "High" if hybrid_score >= 0.5 else "Low"
     is_high_risk = risk_level == "High"
 
-    # ---- Save to DB ----
     cursor.execute("""
         INSERT INTO personality_results (
             user_name, extraversion, agreeableness, neuroticism, openness, conscientiousness,
             hybrid_score, risk_level, lr_score, bert_score, is_high_risk, answers_json
         ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
     """, (
-        user_name,
-        extraversion,
-        agreeableness,
-        neuroticism,
-        openness,
-        conscientiousness,
-        round(hybrid_score, 4),
-        risk_level,
-        round(lr_score, 4),
-        round(bert_anomaly_score, 4),
-        is_high_risk,
-        json.dumps(answers)
+        user_name, extraversion, agreeableness, neuroticism, openness, conscientiousness,
+        round(hybrid_score, 4), risk_level, round(lr_score, 4), round(bert_anomaly_score, 4),
+        is_high_risk, json.dumps(answers)
     ))
     db.commit()
 
-    # ---- Return JSON ----
     return jsonify({
         "extraversion": extraversion,
         "agreeableness": agreeableness,
@@ -313,8 +289,8 @@ def bfi10_risk():
         "is_high_risk": is_high_risk
     })
 
-# ---------------- WHO-5 Well-Being Test ----------------
-WHO5_WEIGHTS = np.array([0.6, 0.7, 0.5, 0.8, 0.6])  # tune these
+# ---------------- WHO-5 Well-Being ----------------
+WHO5_WEIGHTS = np.array([0.6, 0.7, 0.5, 0.8, 0.6])
 WHO5_INTERCEPT = -1.2
 
 @app.route('/who5_risk', methods=['POST'])
@@ -326,13 +302,11 @@ def who5_risk():
     result_text = data.get("result_text", "")
     description = data.get("description", "")
 
-    # logistic regression
     answers_list = list(answers.values()) if isinstance(answers, dict) else answers
     features = np.array([int(a) if isinstance(a, (int, float)) else 0 for a in answers_list])
     logit = np.dot(features, WHO5_WEIGHTS) + WHO5_INTERCEPT
     lr_score = 1 / (1 + np.exp(-logit))
 
-    # BERT anomaly score
     bert_score = 0.0
     text = data.get("text", " ".join(map(str, answers_list)))
     bert_model = load_model()
@@ -346,12 +320,10 @@ def who5_risk():
             anomaly_output = bert_model(input_ids, attention_mask, anomaly=True)
             bert_score = anomaly_output["anomaly_score"].item()
 
-    # hybrid score
     hybrid_score = (lr_score + bert_score) / 2
     risk_level = "High" if hybrid_score >= 0.5 else "Low"
     is_high_risk = risk_level == "High"
 
-    # save in DB
     cursor.execute("""
         INSERT INTO wellbeing_results (
             user_name, score, result_text, description,
@@ -359,16 +331,9 @@ def who5_risk():
             risk_level, is_high_risk, answers_json
         ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
     """, (
-        user_name,
-        score,
-        result_text,
-        description,
-        round(lr_score, 4),
-        round(bert_score, 4),
-        round(hybrid_score, 4),
-        risk_level,
-        is_high_risk,
-        json.dumps(answers)
+        user_name, score, result_text, description,
+        round(lr_score, 4), round(bert_score, 4), round(hybrid_score, 4),
+        risk_level, is_high_risk, json.dumps(answers)
     ))
     db.commit()
 
@@ -397,7 +362,7 @@ def create_post():
     text = data.get("text","")
     space = data.get("space","Community Support")
     emotion = analyze_text(text).get("label","neutral")
-    
+
     cursor.execute("INSERT INTO posts (space,text,emotion) VALUES (%s,%s,%s)",(space,text,emotion))
     db.commit()
     post_id = cursor.lastrowid
@@ -408,7 +373,7 @@ def add_comment(post_id):
     data = request.get_json()
     text = data.get("text","")
     emotion = analyze_text(text).get("label","neutral")
-    
+
     cursor.execute("INSERT INTO comments (post_id,text,emotion) VALUES (%s,%s,%s)",(post_id,text,emotion))
     db.commit()
     comment_id = cursor.lastrowid
@@ -426,24 +391,24 @@ def delete_comment(comment_id):
     db.commit()
     return jsonify({"message":"Comment deleted"})
 
-# ---------------- Training Endpoint ----------------
+# ---------------- Training ----------------
 @app.route('/train', methods=['POST'])
 def train():
     global model, label_encoder, training_status
     training_status["status"]="training"
     try:
-        file = request.files['file']
-        df = pd.read_csv(file)
+    
+        df = pd.read_csv("emotion_dataset.csv")
         df = shuffle(df)
-        
+
         label_encoder.fit(df['label'])
         labels = label_encoder.transform(df['label'])
         dataset = EmotionDataset(df['text'].tolist(), labels)
         dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
-        
+
         model = EmotionClassifier(len(label_encoder.classes_)).to(device)
         optimizer = AdamW(model.parameters(), lr=2e-5)
-        
+
         for epoch in range(5):
             model.train()
             total_loss = 0
@@ -451,23 +416,23 @@ def train():
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
                 labels_batch = batch['label'].to(device)
-                
+
                 output = model(input_ids, attention_mask, labels_batch)
                 loss = output['loss']
-                
+
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item()
-            
+
             training_status.update({"epoch":epoch+1,"loss":total_loss})
-        
+
         torch.save({
             'model_state_dict':model.state_dict(),
             'label_encoder_classes':label_encoder.classes_,
             'num_labels':len(label_encoder.classes_)
         }, CHECKPOINT_FILE)
-        
+
         training_status["status"]="completed"
         return jsonify({"message":"Training complete","loss":total_loss})
     except Exception as e:
@@ -478,7 +443,7 @@ def train():
 def get_training_status():
     return jsonify(training_status)
 
-# ---------------- Analyze Text Endpoint ----------------
+# ---------------- Analyze Text ----------------
 @app.route('/analyze', methods=['POST'])
 def analyze():
     data = request.get_json()
@@ -492,4 +457,5 @@ def analyze():
 
 # ---------------- Main ----------------
 if __name__=="__main__":
-    app.run(debug=True)
+    port = int(os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
