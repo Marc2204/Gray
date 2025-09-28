@@ -35,7 +35,7 @@ label_encoder = LabelEncoder()
 db = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
-    password="Marc2204@",
+    password="",
     database="mental_health"
 )
 cursor = db.cursor(dictionary=True)
